@@ -1,5 +1,5 @@
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef TREE_H
+#define TREE_H
 
 #include "stack.h"
 
@@ -53,4 +53,4 @@ tree_return_e TreeAddNode(tree_s* tree, node_s* node);
 
 void TreeDump(tree_s* tree);
 
-#endif //GRAPH_H
+#endif //TREE_H

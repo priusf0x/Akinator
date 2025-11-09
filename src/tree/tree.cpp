@@ -1,4 +1,4 @@
-#include <graph.h>
+#include "tree.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -35,7 +35,7 @@ TreeInit(tree_s* tree,
 
     //zero element creation;
     tree->nodes_array[0] = {.parent_index = NO_LINK,  .parent_connection = EDGE_DIR_NO_DIRECTION,
-                            .right_index  = 1,        .left_index        = NO_LINK,
+                            .right_index  = NO_LINK,  .left_index        = NO_LINK,
                             .node_value   = 0};
     //end creating zero element;
     return TREE_RETURN_SUCCESS;
@@ -86,7 +86,7 @@ NumerizeElements(tree_s* tree,
     for(size_t index = start_index; index < tree->nodes_capacity; index++)
     {
         tree->nodes_array[index].index_in_tree = index;
-        tree->nodes_array[index].right_index = (ssize_t) index + 1;
+        tree->nodes_array[index].right_index = -1;
         tree->nodes_array[index].parent_index = -1;
         tree->nodes_array[index].left_index = -1;
         if(StackPush(tree->free_element_swag, tree->nodes_capacity - index) != 0) // because of null element)
@@ -102,7 +102,7 @@ NumerizeElements(tree_s* tree,
 
 const uint8_t CHILD_RIGHT_USAGE = 0b0000'0001;
 const uint8_t CHILD_LEFT_USAGE = 0b0000'0010;
-const uint8_t INVALID_NODE =  0b0000'0011;
+const uint8_t INVALID_NODE =  0b0000'0100;
 
 static uint8_t CheckTreeNode(tree_s* tree, node_s* node);
 static tree_return_e ConnectNodes(tree_s* tree, node_s* node, uint8_t children_usage);
@@ -151,23 +151,31 @@ CheckTreeNode(tree_s* tree,
     ASSERT(tree != NULL);
     ASSERT(node != NULL);
 
-    ssize_t child_1 = node->left_index;
-    ssize_t child_2 = node->right_index;
-    ssize_t parent  = node->parent_index;
+    ssize_t child_left = node->left_index;
+    ssize_t child_right = node->right_index;
+    ssize_t parent = node->parent_index;
 
     uint8_t output = 0b0000'0000;
 
-    if (parent != NO_LINK)
+    if ((parent >= (ssize_t) tree->nodes_capacity)
+        || (child_left >= (ssize_t) tree->nodes_capacity)
+        || (child_right > (ssize_t) tree->nodes_capacity))
     {
         return INVALID_NODE;
     }
-    else if ((child_1 != NO_LINK) && (output & CHILD_RIGHT_USAGE)
-              && (tree->nodes_array[child_1].parent_index != parent))
+    else if (parent == NO_LINK)
     {
         return INVALID_NODE;
     }
-    else if ((child_2 != NO_LINK) && (output & CHILD_LEFT_USAGE)
-              && (tree->nodes_array[child_2].parent_index != parent))
+    else if ((child_left != NO_LINK) && (output |= CHILD_LEFT_USAGE)
+              && ((tree->nodes_array[child_left].parent_index != parent)
+              || (child_left == (ssize_t) node->index_in_tree)))
+    {
+        return INVALID_NODE;
+    }
+    else if ((child_right != NO_LINK) && (output |= CHILD_RIGHT_USAGE)
+              && ((tree->nodes_array[child_right].parent_index != parent)
+              || (child_right == (ssize_t) node->index_in_tree)))
     {
         return INVALID_NODE;
     }
@@ -216,7 +224,7 @@ ConnectNodes(tree_s*  tree,
     {
         tree->nodes_array[node->right_index].parent_index = (ssize_t) node->index_in_tree;
     }
-    else if (children_usage & CHILD_LEFT_USAGE)
+    if (children_usage & CHILD_LEFT_USAGE)
     {
         tree->nodes_array[node->left_index].parent_index = (ssize_t) node->index_in_tree;
     }
@@ -235,29 +243,5 @@ ConnectNodes(tree_s*  tree,
     return TREE_RETURN_SUCCESS;
 }
 
-// ============================= NODES_METHODS ================================
+// ============================================================================
 
-void
-TreeDump(tree_s* tree)
-{
-    ASSERT(tree != NULL);
-
-    printf("count: %zu\n", tree->nodes_count);
-    printf("capacity: %zu\n", tree->nodes_capacity);
-    printf("last_input: %zu\n\n", tree->last_added_index);
-
-    for(size_t index = 0; index < tree->nodes_capacity; index++)
-    {
-        printf("index in table: %zu\n", tree->nodes_array[index].index_in_tree);
-        printf("left index: %ld\n", tree->nodes_array[index].left_index);
-        printf("right index: %ld\n", tree->nodes_array[index].right_index);
-        printf("value: %d\n", tree->nodes_array[index].node_value);
-        printf("parent_index: %ld\n\n", tree->nodes_array[index].parent_index);
-    }
-
-    StackDump(tree->free_element_swag);
-}
-
-// ============================= GRAPH_LOG ====================================
-
-// vsakaya huyna napisana here govno code exactly
