@@ -1,6 +1,8 @@
 #ifndef TREE_H
 #define TREE_H
 
+#include <stdio.h>
+
 #include "stack.h"
 
 enum edge_dir_e
@@ -16,7 +18,9 @@ enum tree_return_e
     TREE_RETURN_ALLOCATION_ERROR,
     TREE_RETURN_INCORRECT_VALUE,
     TREE_RETURN_STACK_ERROR,
-    TREE_RETURN_INVALID_NODE
+    TREE_RETURN_INVALID_NODE,
+    TREE_RETURN_OPEN_FILE_ERROR,
+    TREE_RETURN_CLOSE_FILE_ERROR
 };
 
 typedef int node_data_t;
@@ -36,8 +40,6 @@ struct tree_s
     node_s* nodes_array;
     size_t  nodes_count;
     size_t  nodes_capacity;
-    swag_t  free_element_swag;
-    size_t  last_added_index;
 };
 
 // ============================= MEMORY_CONTROLLING ===========================
@@ -51,6 +53,7 @@ tree_return_e TreeAddNode(tree_s* tree, node_s* node);
 
 // ============================== TREE_DUMP ===================================
 
-void TreeDump(tree_s* tree);
+FILE* GetLogFile();
+void TreeDump(const tree_s* tree);
 
 #endif //TREE_H

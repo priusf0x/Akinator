@@ -10,6 +10,7 @@ static tree_return_e SetTreeSize(tree_s* tree, size_t  new_size);
 static tree_return_e NumerizeElements(tree_s* tree, size_t start_index);
 
 const ssize_t NO_LINK = -1;
+
 // =========================== MEMORY_CONTROLLING ===============================
 
 tree_return_e
@@ -18,23 +19,15 @@ TreeInit(tree_s* tree,
 {
     ASSERT(tree != NULL);
 
-    const size_t start_stack_size = 5;
-
     tree_return_e output = TREE_RETURN_SUCCESS;
-
-    if (StackInit(&tree->free_element_swag, start_stack_size, "Tree Stack"))
-    {
-        return TREE_RETURN_STACK_ERROR;
-    }
 
     if (SetTreeSize(tree, start_tree_size + 1) != 0)  // for null element
     {
-        StackDestroy(tree->free_element_swag);
         return output;
     }
 
     //zero element creation;
-    tree->nodes_array[0] = {.parent_index = NO_LINK,  .parent_connection = EDGE_DIR_NO_DIRECTION,
+    tree->nodes_array[0] = {.parent_index = 1,        .parent_connection = EDGE_DIR_NO_DIRECTION,
                             .right_index  = NO_LINK,  .left_index        = NO_LINK,
                             .node_value   = 0};
     //end creating zero element;
@@ -44,7 +37,6 @@ TreeInit(tree_s* tree,
 tree_return_e
 TreeDestroy(tree_s* tree)
 {
-    StackDestroy(tree->free_element_swag);
     free(tree->nodes_array);
 
     return TREE_RETURN_SUCCESS;
@@ -64,7 +56,7 @@ SetTreeSize(tree_s* tree,
     }
 
     if ((tree->nodes_array = (node_s*) recalloc(tree->nodes_array,
-        sizeof(node_s) * tree->nodes_count,
+        sizeof(node_s) * (tree->nodes_count + 1),
         sizeof(node_s) * new_size)) == NULL)
     {
         return TREE_RETURN_ALLOCATION_ERROR;
@@ -73,6 +65,8 @@ SetTreeSize(tree_s* tree,
     tree->nodes_capacity = new_size;
 
     NumerizeElements(tree, tree->nodes_count + 1);
+
+    tree->nodes_array[0].parent_index = (ssize_t) tree->nodes_count + 1;
 
     return TREE_RETURN_SUCCESS;
 }
@@ -87,12 +81,9 @@ NumerizeElements(tree_s* tree,
     {
         tree->nodes_array[index].index_in_tree = index;
         tree->nodes_array[index].right_index = -1;
-        tree->nodes_array[index].parent_index = -1;
+        tree->nodes_array[index].parent_index = (ssize_t) index + 1;
         tree->nodes_array[index].left_index = -1;
-        if(StackPush(tree->free_element_swag, tree->nodes_capacity - index) != 0) // because of null element)
-        {
-            return TREE_RETURN_STACK_ERROR;
-        }
+        tree->nodes_array[index].parent_connection = EDGE_DIR_NO_DIRECTION;
     }
 
     return TREE_RETURN_SUCCESS;
@@ -126,17 +117,12 @@ TreeAddNode(tree_s* tree,
         return TREE_RETURN_ALLOCATION_ERROR;
     }
 
-    size_t free_index = 0;
-    if(StackPop(tree->free_element_swag, &free_index) != 0)
-    {
-        return TREE_RETURN_STACK_ERROR;
-    }
-
-    node->index_in_tree = free_index;
+    node->index_in_tree = (size_t) tree->nodes_array[0].parent_index;
+    tree->nodes_array[0].parent_index =
+    tree->nodes_array[node->index_in_tree].parent_index;
 
     ConnectNodes(tree, node, children_usage);
 
-    tree->last_added_index = free_index;
     tree->nodes_count++;
 
     return TREE_RETURN_SUCCESS;
@@ -157,23 +143,27 @@ CheckTreeNode(tree_s* tree,
 
     uint8_t output = 0b0000'0000;
 
-    if ((parent >= (ssize_t) tree->nodes_capacity)
+    if ((parent >= (ssize_t) tree->nodes_capacity)     // check user's values
         || (child_left >= (ssize_t) tree->nodes_capacity)
         || (child_right > (ssize_t) tree->nodes_capacity))
     {
         return INVALID_NODE;
     }
-    else if (parent == NO_LINK)
+    else if (node->parent_connection == EDGE_DIR_NO_DIRECTION)
     {
         return INVALID_NODE;
     }
-    else if ((child_left != NO_LINK) && (output |= CHILD_LEFT_USAGE)
+    else if (parent == NO_LINK)    // check parent if he is null
+    {
+        return INVALID_NODE;
+    }
+    else if ((child_left != NO_LINK) && (output |= CHILD_LEFT_USAGE) // check the ability to insert left node
               && ((tree->nodes_array[child_left].parent_index != parent)
               || (child_left == (ssize_t) node->index_in_tree)))
     {
         return INVALID_NODE;
     }
-    else if ((child_right != NO_LINK) && (output |= CHILD_RIGHT_USAGE)
+    else if ((child_right != NO_LINK) && (output |= CHILD_RIGHT_USAGE)  // check the ability to insert right node
               && ((tree->nodes_array[child_right].parent_index != parent)
               || (child_right == (ssize_t) node->index_in_tree)))
     {
@@ -222,11 +212,15 @@ ConnectNodes(tree_s*  tree,
 
     if (children_usage & CHILD_RIGHT_USAGE)
     {
+        tree->nodes_array[node->parent_index].right_index = -1;
         tree->nodes_array[node->right_index].parent_index = (ssize_t) node->index_in_tree;
+        tree->nodes_array[node->right_index].parent_connection = EDGE_DIR_RIGHT;
     }
     if (children_usage & CHILD_LEFT_USAGE)
     {
+        tree->nodes_array[node->parent_index].left_index = -1;
         tree->nodes_array[node->left_index].parent_index = (ssize_t) node->index_in_tree;
+        tree->nodes_array[node->left_index].parent_connection = EDGE_DIR_LEFT;
     }
 
     if (node->parent_connection == EDGE_DIR_RIGHT)
@@ -243,5 +237,5 @@ ConnectNodes(tree_s*  tree,
     return TREE_RETURN_SUCCESS;
 }
 
-// ============================================================================
+// ============================ ==================================
 
