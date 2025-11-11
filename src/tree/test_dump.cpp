@@ -76,7 +76,8 @@ TreeDot(const tree_s* tree,
     static const char* GRAPH_VIZ_OPTIONS =R"(graph  G{
                                             bgcolor = "#303030";
                                             splines = polyline;
-                                            node [shape = record, style = filled, color = "#b16261", fillcolor = "#949494"];
+                                            node [shape = record, style = filled,
+                                            color = "#b16261", fillcolor = "#949494"];
                                             edge [width = 2, color = "#949494"])";
 
     fprintf(dot_file, "%s", GRAPH_VIZ_OPTIONS);
@@ -137,3 +138,4 @@ DrawNode(node_s* node,
         fprintf(dot_file, "%zu -- %ld;\n", node->index_in_tree, node->right_index);
     }
 }
+

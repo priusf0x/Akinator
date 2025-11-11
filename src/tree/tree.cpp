@@ -44,6 +44,16 @@ TreeDestroy(tree_s* tree)
 
 //=============================== MEMORY_HELPERS ===============================
 
+static void
+ClearNode(tree_s* tree,
+          size_t  current_node)
+{
+    tree->nodes_array[current_node].right_index = -1;
+    tree->nodes_array[current_node].left_index = -1;
+    tree->nodes_array[current_node].parent_connection = EDGE_DIR_NO_DIRECTION;
+    tree->nodes_array[current_node].node_value = 0;
+}
+
 static tree_return_e
 SetTreeSize(tree_s* tree,
             size_t  new_size)
@@ -80,10 +90,8 @@ NumerizeElements(tree_s* tree,
     for(size_t index = start_index; index < tree->nodes_capacity; index++)
     {
         tree->nodes_array[index].index_in_tree = index;
-        tree->nodes_array[index].right_index = -1;
         tree->nodes_array[index].parent_index = (ssize_t) index + 1;
-        tree->nodes_array[index].left_index = -1;
-        tree->nodes_array[index].parent_connection = EDGE_DIR_NO_DIRECTION;
+        ClearNode(tree, index);
     }
 
     return TREE_RETURN_SUCCESS;
@@ -157,15 +165,13 @@ CheckTreeNode(tree_s* tree,
     {
         return INVALID_NODE;
     }
-    else if ((child_left != NO_LINK) && (output |= CHILD_LEFT_USAGE) // check the ability to insert left node
-              && ((tree->nodes_array[child_left].parent_index != parent)
-              || (child_left == (ssize_t) node->index_in_tree)))
+    else if ((child_left != NO_LINK) && (output |= CHILD_LEFT_USAGE)
+              && (child_left == (ssize_t) node->index_in_tree))
     {
         return INVALID_NODE;
     }
-    else if ((child_right != NO_LINK) && (output |= CHILD_RIGHT_USAGE)  // check the ability to insert right node
-              && ((tree->nodes_array[child_right].parent_index != parent)
-              || (child_right == (ssize_t) node->index_in_tree)))
+    else if ((child_right != NO_LINK) && (output |= CHILD_RIGHT_USAGE)
+              && (child_right == (ssize_t) node->index_in_tree))
     {
         return INVALID_NODE;
     }
@@ -212,13 +218,29 @@ ConnectNodes(tree_s*  tree,
 
     if (children_usage & CHILD_RIGHT_USAGE)
     {
-        tree->nodes_array[node->parent_index].right_index = -1;
+        if (tree->nodes_array[node->right_index].parent_connection == EDGE_DIR_RIGHT)
+        {
+            tree->nodes_array[tree->nodes_array[node->right_index].parent_index].right_index = -1;
+        }
+        else if (tree->nodes_array[node->right_index].parent_connection == EDGE_DIR_LEFT)
+        {
+            tree->nodes_array[tree->nodes_array[node->right_index].parent_index].left_index = -1;
+        }
+
         tree->nodes_array[node->right_index].parent_index = (ssize_t) node->index_in_tree;
         tree->nodes_array[node->right_index].parent_connection = EDGE_DIR_RIGHT;
     }
     if (children_usage & CHILD_LEFT_USAGE)
     {
-        tree->nodes_array[node->parent_index].left_index = -1;
+        if (tree->nodes_array[node->left_index].parent_connection == EDGE_DIR_RIGHT)
+        {
+            tree->nodes_array[tree->nodes_array[node->left_index].parent_index].right_index = -1;
+        }
+        else if (tree->nodes_array[node->left_index].parent_connection == EDGE_DIR_LEFT)
+        {
+            tree->nodes_array[tree->nodes_array[node->left_index].parent_index].left_index = -1;
+        }
+
         tree->nodes_array[node->left_index].parent_index = (ssize_t) node->index_in_tree;
         tree->nodes_array[node->left_index].parent_connection = EDGE_DIR_LEFT;
     }
@@ -237,5 +259,77 @@ ConnectNodes(tree_s*  tree,
     return TREE_RETURN_SUCCESS;
 }
 
-// ============================ ==================================
+// ============================ ELEMENTS_ACTIONS ==============================
 
+tree_return_e
+DeleteSubgraph(tree_s* tree,
+               size_t  node_index)
+{
+    ASSERT(tree != NULL);
+
+    swag_t bypass_stack = NULL;
+
+    const size_t stack_start_size = 10;
+
+    if (StackInit(&bypass_stack, stack_start_size, "InWideBypass") != 0)
+    {
+        return TREE_RETURN_STACK_ERROR;
+    }
+
+    if (tree->nodes_array[node_index].parent_connection == EDGE_DIR_NO_DIRECTION)
+    {
+        return TREE_RETURN_INVALID_NODE;
+    }
+    else if (tree->nodes_array[node_index].parent_connection == EDGE_DIR_RIGHT)
+    {
+        tree->nodes_array[tree->nodes_array[node_index].parent_index].right_index = -1;
+    }
+    else if (tree->nodes_array[node_index].parent_connection == EDGE_DIR_LEFT)
+    {
+        tree->nodes_array[tree->nodes_array[node_index].parent_index].left_index = -1;
+    }
+
+    if (StackPush(bypass_stack, node_index) != 0)
+    {
+        return TREE_RETURN_STACK_ERROR;
+    }
+
+    size_t current_element = 0;
+
+    while (GetStackSize(bypass_stack) != 0)
+    {
+        if (StackPop(bypass_stack, &current_element))
+        {
+            return TREE_RETURN_STACK_ERROR;
+        }
+
+        if (tree->nodes_array[current_element].right_index != -1)
+        {
+            if (StackPush(bypass_stack, (size_t) tree->nodes_array[current_element].right_index))
+            {
+                return TREE_RETURN_STACK_ERROR;
+            }
+        }
+
+        if (tree->nodes_array[current_element].left_index != -1)
+        {
+            if (StackPush(bypass_stack, (size_t) tree->nodes_array[current_element].left_index))
+            {
+                return TREE_RETURN_STACK_ERROR;
+            }
+        }
+
+        tree->nodes_array[current_element].parent_index = (ssize_t) tree->nodes_array[0].parent_index;
+        tree->nodes_array[0].parent_index = (ssize_t) current_element;
+
+        ClearNode(tree, current_element);
+
+        tree->nodes_count--;
+    }
+
+    StackDestroy(bypass_stack);
+
+    return TREE_RETURN_SUCCESS;
+}
+
+// ================================= TREE_DUMP ================================

@@ -32,11 +32,12 @@ enum stack_state_e
 struct swag_s;
 typedef swag_s* swag_t;
 
-stack_function_errors_e     StackInit(swag_s** swag, size_t count, const char* swag_name);
-stack_function_errors_e     StackDestroy(swag_s* swag);
-stack_function_errors_e     StackPush(swag_s* swag, value_type value);
-stack_function_errors_e     StackPop(swag_s* swag, value_type* pop_variable);
-void                        StackDump(swag_s* swag);
+stack_function_errors_e     StackInit(swag_t* swag, size_t count, const char* swag_name);
+stack_function_errors_e     StackDestroy(swag_t swag);
+stack_function_errors_e     StackPush(swag_t swag, value_type value);
+stack_function_errors_e     StackPop(swag_t swag, value_type* pop_variable);
+size_t                      GetStackSize(swag_t swag);
+void                        StackDump(swag_t swag);
 
 #ifdef HARD_SWAG
 #define VERIFY_STACK_WITH_RETURN(X) (void)0

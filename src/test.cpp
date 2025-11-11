@@ -30,6 +30,7 @@ int main(void)
                      .right_index  = 3, .left_index        = 4,
                      .node_value   = 228};
 
+
     TreeInit(&tree, 4);
 
     if (TreeAddNode(&tree, &node_1) != 0)
@@ -62,8 +63,9 @@ int main(void)
         printf("dolboeb\n");
     }
 
-    TreeDump(&tree);
+    DeleteSubgraph(&tree, 6);
 
+    TreeDump(&tree);
 
     TreeDestroy(&tree);
 

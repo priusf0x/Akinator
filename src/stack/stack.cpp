@@ -11,10 +11,10 @@
 const size_t CANARY_SIZE = 4;
 const uint64_t CANARY_FILL = 0xB16B00B5;
 
-static bool                    CheckCanary(swag_s* swag);
+static bool                    CheckCanary(swag_t swag);
 static stack_function_errors_e SetCanary(void* pointer, uint64_t value);
-static stack_function_errors_e StackNormalizeSize(swag_s* swag);
-static stack_function_errors_e VerifyStack(swag_s* swag);
+static stack_function_errors_e StackNormalizeSize(swag_t swag);
+static stack_function_errors_e VerifyStack(swag_t swag);
 
 struct swag_s
 {
@@ -30,7 +30,7 @@ struct swag_s
 };
 
 stack_function_errors_e
-StackInit(swag_s**   swag,
+StackInit(swag_t*    swag,
           size_t      expected_capacity,
           const char* swag_name)
 {
@@ -74,7 +74,7 @@ StackInit(swag_s**   swag,
 }
 
 stack_function_errors_e
-StackDestroy(swag_s* swag)
+StackDestroy(swag_t swag)
 {
     free(swag->canary_start);
     free(swag);
@@ -83,7 +83,7 @@ StackDestroy(swag_s* swag)
 }
 
 stack_function_errors_e
-StackPush(swag_s*   swag,
+StackPush(swag_t   swag,
           value_type value)
 {
     ASSERT(swag != NULL);
@@ -101,7 +101,7 @@ StackPush(swag_s*   swag,
 }
 
 stack_function_errors_e
-StackPop(swag_s*    swag,
+StackPop(swag_t    swag,
          value_type* pop_variable)
 {
     ASSERT(swag != NULL);
@@ -124,8 +124,14 @@ StackPop(swag_s*    swag,
     return STACK_FUNCTION_SUCCESS;
 }
 
+size_t
+GetStackSize(swag_t swag)
+{
+    return swag->size;
+}
+
 static bool
-CheckCanary(swag_s* swag)
+CheckCanary(swag_t swag)
 {
     for (size_t index = 0; index < CANARY_SIZE; index++)
     {
@@ -140,7 +146,7 @@ CheckCanary(swag_s* swag)
 }
 
 static stack_function_errors_e
-VerifyStack(swag_s* swag)
+VerifyStack(swag_t swag)
 {
     if ((swag->state) == STACK_STATE_UNINITIALIZED)
     {
@@ -164,7 +170,7 @@ VerifyStack(swag_s* swag)
 
 
 static stack_function_errors_e
-StackNormalizeSize(swag_s* swag)
+StackNormalizeSize(swag_t swag)
 {
     if (swag->size == swag->capacity)
     {
@@ -222,8 +228,9 @@ SetCanary(void*    pointer,
     return STACK_FUNCTION_SUCCESS;
 }
 
+
 void
-StackDump(swag_s* swag)
+StackDump(swag_t swag)
 {
     printf(YELLOW "______________________________________________________________________________________________\n"
                   "------------------------------------------STACK_DATA------------------------------------------\n" STANDARD);

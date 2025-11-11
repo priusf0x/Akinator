@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-#include "stack.h"
-
 enum edge_dir_e
 {
     EDGE_DIR_NO_DIRECTION  = 0,
@@ -20,7 +18,7 @@ enum tree_return_e
     TREE_RETURN_STACK_ERROR,
     TREE_RETURN_INVALID_NODE,
     TREE_RETURN_OPEN_FILE_ERROR,
-    TREE_RETURN_CLOSE_FILE_ERROR
+    TREE_RETURN_CLOSE_FILE_ERROR,
 };
 
 typedef int node_data_t;
@@ -55,5 +53,9 @@ tree_return_e TreeAddNode(tree_s* tree, node_s* node);
 
 FILE* GetLogFile();
 void TreeDump(const tree_s* tree);
+
+// ============================== BYPASS_FUNCTIONS ============================
+
+tree_return_e DeleteSubgraph(tree_s* tree, size_t node_index);
 
 #endif //TREE_H
