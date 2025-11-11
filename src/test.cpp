@@ -66,6 +66,7 @@ int main(void)
     DeleteSubgraph(&tree, 6);
 
     TreeDump(&tree);
+    TreeBaseDump(&tree, stdout);
 
     TreeDestroy(&tree);
 

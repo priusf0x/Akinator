@@ -19,6 +19,7 @@ enum tree_return_e
     TREE_RETURN_INVALID_NODE,
     TREE_RETURN_OPEN_FILE_ERROR,
     TREE_RETURN_CLOSE_FILE_ERROR,
+    TREE_RETURN_EMPTY_TREE
 };
 
 typedef int node_data_t;
@@ -53,6 +54,7 @@ tree_return_e TreeAddNode(tree_s* tree, node_s* node);
 
 FILE* GetLogFile();
 void TreeDump(const tree_s* tree);
+tree_return_e TreeBaseDump(const tree_s* tree, FILE* file_output);
 
 // ============================== BYPASS_FUNCTIONS ============================
 

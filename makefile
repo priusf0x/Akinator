@@ -1,4 +1,4 @@
-SOURCES = test.cpp common/simple_parser.cpp tree/tree.cpp stack/stack.cpp common/tools.cpp tree/test_dump.cpp
+SOURCES = test.cpp common/simple_parser.cpp tree/tree.cpp stack/stack.cpp common/tools.cpp tree/tree_dump.cpp
 
 OBJ_DIR = obj
 SOURCE_DIR = src
