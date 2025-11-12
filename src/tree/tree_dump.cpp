@@ -6,7 +6,7 @@
 #include "tools.h"
 #include "stack.h"
 
-static tree_return_e TreeDot(const tree_s* tree, const char* current_time);
+static tree_return_e TreeDot(const tree_t tree, const char* current_time);
 static void DrawNode(const node_s* node, FILE* dot_file);
 
 // ================================ SINGLE_TONE ===============================
@@ -24,8 +24,8 @@ GetLogFile()
 
 
 tree_return_e
-TreeBaseDump(const tree_s* tree,
-             FILE*         file_output)
+TreeBaseDump(const tree_t tree, // FIXME хуета
+             FILE*        file_output)
 {
     ASSERT(tree != NULL);
     ASSERT(file_output != NULL);
@@ -44,24 +44,16 @@ TreeBaseDump(const tree_s* tree,
         return TREE_RETURN_EMPTY_TREE;
     }
 
-    if (StackPush(bypass_stack, (size_t) tree->nodes_array[0].right_index) != 0)
+    size_t current_element = tree->nodes_array[0].right_index;
+    edge_dir_e last_direction = EDGE_DIR_NO_DIRECTION;
+
+    do
     {
-        return TREE_RETURN_STACK_ERROR;
-    }
+        fprintf(file_output, "%d (", tree->nodes_array[current_element].node_value);
 
-    size_t current_element = 0;
-
-    while (GetStackSize(bypass_stack) != 0)
-    {
-        if (StackPop(bypass_stack, &current_element))
+        if (tree->nodes_array[current_element].left_index != -1)
         {
-            return TREE_RETURN_STACK_ERROR;
-        }
-
-        fprintf(file_output, "%d ( ", tree->nodes_array[current_element].node_value);
-
-        if (tree->nodes_array[current_element].right_index != -1)
-        {
+            fprintf(file_output, "(");
             if (StackPush(bypass_stack,
                 (size_t) tree->nodes_array[current_element].right_index))
             {
@@ -70,7 +62,7 @@ TreeBaseDump(const tree_s* tree,
         }
         else
         {
-            fprintf(file_output, "nil ");
+            is_right_nill = true;
         }
 
         if (tree->nodes_array[current_element].left_index != -1)
@@ -83,11 +75,11 @@ TreeBaseDump(const tree_s* tree,
         }
         else
         {
-            fprintf(file_output, "nil ) ");
+            is_left_nill = true;
         }
-    }
 
-    fprintf(file_output, ")");
+        if
+    } while (GetStackSize(bypass_stack) != 0);
 
     StackDestroy(bypass_stack);
 
@@ -96,12 +88,12 @@ TreeBaseDump(const tree_s* tree,
 
 // ============================== DUMP_FUNCTIONS ==============================
 
-static void PrintTreeInfo(const tree_s* tree, const char* current_time, FILE* file_output);
+static void PrintTreeInfo(const tree_t tree, const char* current_time, FILE* file_output);
 static void PrintHTMLHeader(FILE* log_file, const char* current_time);
-static void PrintElementsInfo(const tree_s* tree, FILE* file_output);
+static void PrintElementsInfo(const tree_t tree, FILE* file_output);
 
 void
-TreeDump(const tree_s* tree)
+TreeDump(const tree_t tree)
 {
     ASSERT(tree != NULL);
 
@@ -139,9 +131,9 @@ PrintHTMLHeader(FILE*       log_file,
 }
 
 static void
-PrintTreeInfo(const tree_s* tree,
-              const char*   current_time,
-              FILE*         file_output)
+PrintTreeInfo(const tree_t tree,
+              const char*  current_time,
+              FILE*        file_output)
 {
     const ssize_t max_string_size = 50;
     char img_template[max_string_size] = {};
@@ -155,8 +147,8 @@ PrintTreeInfo(const tree_s* tree,
 }
 
 static void
-PrintElementsInfo(const tree_s* tree,
-                  FILE*         file_output)
+PrintElementsInfo(const tree_t tree,
+                  FILE*        file_output)
 {
     for(size_t index = 0; index < tree->nodes_capacity; index++)
     {
@@ -169,8 +161,8 @@ PrintElementsInfo(const tree_s* tree,
 }
 
 static tree_return_e
-TreeDot(const tree_s* tree,
-        const char*   current_time)
+TreeDot(const tree_t tree,
+        const char*  current_time)
 {
     ASSERT(tree != NULL);
     ASSERT(current_time != NULL);

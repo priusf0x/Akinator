@@ -41,23 +41,25 @@ struct tree_s
     size_t  nodes_capacity;
 };
 
+typedef tree_s* tree_t;
+
 // ============================= MEMORY_CONTROLLING ===========================
 
-tree_return_e TreeInit(tree_s* tree, size_t start_tree_size);
-tree_return_e TreeDestroy(tree_s* tree);
+tree_return_e TreeInit(tree_t* tree, size_t start_tree_size);
+tree_return_e TreeDestroy(tree_t tree);
 
 //============================= NODES_ACTIONS =================================
 
-tree_return_e TreeAddNode(tree_s* tree, node_s* node);
+tree_return_e TreeAddNode(tree_t tree, node_s* node);
 
 // ============================== TREE_DUMP ===================================
 
 FILE* GetLogFile();
-void TreeDump(const tree_s* tree);
-tree_return_e TreeBaseDump(const tree_s* tree, FILE* file_output);
+void TreeDump(const tree_t tree);
+tree_return_e TreeBaseDump(const tree_t tree, FILE* file_output);
 
 // ============================== BYPASS_FUNCTIONS ============================
 
-tree_return_e DeleteSubgraph(tree_s* tree, size_t node_index);
+tree_return_e DeleteSubgraph(tree_t tree, size_t node_index);
 
 #endif //TREE_H

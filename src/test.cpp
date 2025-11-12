@@ -5,7 +5,7 @@
 
 int main(void)
 {
-    tree_s tree = {};
+    tree_t tree = {};
     node_s node_1 = {.parent_index = 0, .parent_connection = EDGE_DIR_RIGHT,
                      .right_index  = -1,  .left_index        = -1,
                      .node_value   = 12};
@@ -33,42 +33,42 @@ int main(void)
 
     TreeInit(&tree, 4);
 
-    if (TreeAddNode(&tree, &node_1) != 0)
+    if (TreeAddNode(tree, &node_1) != 0)
     {
         printf("dolboeb\n");
     }
 
-    if (TreeAddNode(&tree, &node_2) != 0)
+    if (TreeAddNode(tree, &node_2) != 0)
     {
         printf("dolboeb\n");
     }
 
-    if (TreeAddNode(&tree, &node_3) != 0)
+    if (TreeAddNode(tree, &node_3) != 0)
     {
         printf("dolboeb\n");
     }
 
-    if (TreeAddNode(&tree, &node_4) != 0)
+    if (TreeAddNode(tree, &node_4) != 0)
     {
         printf("dolboeb\n");
     }
 
-    if (TreeAddNode(&tree, &node_5) != 0)
+    if (TreeAddNode(tree, &node_5) != 0)
     {
         printf("dolboeb\n");
     }
 
-    if (TreeAddNode(&tree, &node_6) != 0)
+    if (TreeAddNode(tree, &node_6) != 0)
     {
         printf("dolboeb\n");
     }
 
-    DeleteSubgraph(&tree, 6);
+    // DeleteSubgraph(tree, 6);
 
-    TreeDump(&tree);
-    TreeBaseDump(&tree, stdout);
+    TreeDump(tree);
+    TreeBaseDump(tree, stdout);
 
-    TreeDestroy(&tree);
+    TreeDestroy(tree);
 
     return 0;
 }

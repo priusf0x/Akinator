@@ -6,28 +6,35 @@
 #include "Assert.h"
 #include "stack.h"
 
-static tree_return_e SetTreeSize(tree_s* tree, size_t  new_size);
-static tree_return_e NumerizeElements(tree_s* tree, size_t start_index);
+static tree_return_e SetTreeSize(tree_t tree, size_t  new_size);
+static tree_return_e NumerizeElements(tree_t tree, size_t start_index);
 
 const ssize_t NO_LINK = -1;
 
 // =========================== MEMORY_CONTROLLING ===============================
 
 tree_return_e
-TreeInit(tree_s* tree,
+TreeInit(tree_t* tree,
          size_t  start_tree_size)
 {
     ASSERT(tree != NULL);
 
     tree_return_e output = TREE_RETURN_SUCCESS;
 
-    if (SetTreeSize(tree, start_tree_size + 1) != 0)  // for null element
+    *tree = (tree_t) calloc(1, sizeof(tree_s));
+
+    if (*tree == NULL)
+    {
+        return TREE_RETURN_ALLOCATION_ERROR;
+    }
+
+    if (SetTreeSize(*tree, start_tree_size + 1) != 0)  // for null element
     {
         return output;
     }
 
     //zero element creation;
-    tree->nodes_array[0] = {.parent_index = 1,        .parent_connection = EDGE_DIR_NO_DIRECTION,
+    (*tree)->nodes_array[0] = {.parent_index = 1,        .parent_connection = EDGE_DIR_NO_DIRECTION,
                             .right_index  = NO_LINK,  .left_index        = NO_LINK,
                             .node_value   = 0};
     //end creating zero element;
@@ -35,9 +42,11 @@ TreeInit(tree_s* tree,
 }
 
 tree_return_e
-TreeDestroy(tree_s* tree)
+TreeDestroy(tree_t tree)
 {
     free(tree->nodes_array);
+    free(tree);
+    tree = NULL;
 
     return TREE_RETURN_SUCCESS;
 }
@@ -45,8 +54,8 @@ TreeDestroy(tree_s* tree)
 //=============================== MEMORY_HELPERS ===============================
 
 static void
-ClearNode(tree_s* tree,
-          size_t  current_node)
+ClearNode(tree_t tree,
+          size_t current_node)
 {
     tree->nodes_array[current_node].right_index = -1;
     tree->nodes_array[current_node].left_index = -1;
@@ -55,8 +64,8 @@ ClearNode(tree_s* tree,
 }
 
 static tree_return_e
-SetTreeSize(tree_s* tree,
-            size_t  new_size)
+SetTreeSize(tree_t tree,
+            size_t new_size)
 {
     ASSERT(tree != NULL);
 
@@ -82,8 +91,8 @@ SetTreeSize(tree_s* tree,
 }
 
 static tree_return_e
-NumerizeElements(tree_s* tree,
-                 size_t  start_index)
+NumerizeElements(tree_t tree,
+                 size_t start_index)
 {
     ASSERT(tree != NULL);
 
@@ -108,7 +117,7 @@ static tree_return_e ConnectNodes(tree_s* tree, node_s* node, uint8_t children_u
 static tree_return_e TreeNormilizeSize(tree_s* tree);
 
 tree_return_e
-TreeAddNode(tree_s* tree,
+TreeAddNode(tree_t  tree,
             node_s* node)
 {
     ASSERT(tree != NULL);
@@ -139,7 +148,7 @@ TreeAddNode(tree_s* tree,
 // ============================== ADD_NODES_HELPERS ===========================
 
 static uint8_t
-CheckTreeNode(tree_s* tree,
+CheckTreeNode(tree_t  tree,
               node_s* node)
 {
     ASSERT(tree != NULL);
@@ -193,7 +202,7 @@ CheckTreeNode(tree_s* tree,
 }
 
 static tree_return_e
-TreeNormilizeSize(tree_s* tree)
+TreeNormilizeSize(tree_t tree)
 {
     ASSERT(tree != NULL);
 
@@ -209,9 +218,9 @@ TreeNormilizeSize(tree_s* tree)
 }
 
 static tree_return_e
-ConnectNodes(tree_s*  tree,
-             node_s*  node,
-             uint8_t  children_usage)
+ConnectNodes(tree_t  tree,
+             node_s* node,
+             uint8_t children_usage)
 {
     ASSERT(tree != NULL);
     ASSERT(node != NULL);
@@ -265,8 +274,8 @@ ConnectNodes(tree_s*  tree,
 // ============================ ELEMENTS_ACTIONS ==============================
 
 tree_return_e
-DeleteSubgraph(tree_s* tree,
-               size_t  node_index)
+DeleteSubgraph(tree_t tree,
+               size_t node_index)
 {
     ASSERT(tree != NULL);
 
