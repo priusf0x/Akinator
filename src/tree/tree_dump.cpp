@@ -48,10 +48,10 @@ TreeBaseDump(const tree_t tree,
 
     do
     {
+        fprintf(file_output, "%d ( ", tree->nodes_array[current_element].node_value);
+
         if (tree->nodes_array[current_element].left_index != -1)
         {
-            fprintf(file_output, "%d ( ", tree->nodes_array[current_element].node_value);
-            
             if (StackPush(bypass_stack, (size_t) EDGE_DIR_LEFT) != 0)
             {
                 return TREE_RETURN_STACK_ERROR;
@@ -61,9 +61,9 @@ TreeBaseDump(const tree_t tree,
         }
         else if (tree->nodes_array[current_element].right_index != -1)
         {
-            fprintf(file_output, "nill ");
+            fprintf(file_output, "nil ");
 
-            if (StackPush(bypass_stack, (size_t) EDGE_DIR_RIGHT))
+            if (StackPush(bypass_stack, (size_t) EDGE_DIR_RIGHT) != 0)
             {
                 return TREE_RETURN_STACK_ERROR;
             }
@@ -72,25 +72,37 @@ TreeBaseDump(const tree_t tree,
         }
         else
         {
-            fprintf(file_output, " nill nill ");
-            current_element = tree->nodes_array[current_element].parent_index;
+            fprintf(file_output, "nil nil " );
 
             do
             {
+                if (GetStackSize(bypass_stack) == 0)
+                {
+                    break;
+                }
+
                 if (StackPop(bypass_stack, &last_direction) != 0)\
                 {
                     return TREE_RETURN_STACK_ERROR;
                 }
-
-                fprintf(file_output, ")");
-            } while ((GetStackSize(bypass_stack) != 0) || (last_direction != EDGE_DIR_LEFT));
+                current_element = tree->nodes_array[current_element].parent_index;
+                
+                fprintf(file_output, ") ");
+            } while (last_direction != EDGE_DIR_LEFT);
 
             if (last_direction == EDGE_DIR_LEFT)
             {
+                if (StackPush(bypass_stack, (size_t) EDGE_DIR_RIGHT) != 0)
+                {
+                    return TREE_RETURN_STACK_ERROR;
+                }
+
                 current_element = tree->nodes_array[current_element].right_index;
             }
         }
     } while (GetStackSize(bypass_stack) != 0);
+
+    fprintf(file_output, ")");
 
     StackDestroy(bypass_stack);
 

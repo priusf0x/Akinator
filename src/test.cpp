@@ -29,9 +29,8 @@ int main(void)
     node_s node_6 = {.parent_index = 2, .parent_connection = EDGE_DIR_RIGHT,
                      .right_index  = 3, .left_index        = 4,
                      .node_value   = 228};
-
-
-    TreeInit(&tree, 4);
+                     
+    TreeInit(&tree, 4); 
 
     if (TreeAddNode(tree, &node_1) != 0)
     {
@@ -42,16 +41,17 @@ int main(void)
     {
         printf("dolboeb\n");
     }
-
+    
     if (TreeAddNode(tree, &node_3) != 0)
     {
         printf("dolboeb\n");
     }
-
+    
     if (TreeAddNode(tree, &node_4) != 0)
     {
         printf("dolboeb\n");
     }
+    TreeBaseDump(tree, stdout);
 
     if (TreeAddNode(tree, &node_5) != 0)
     {
@@ -66,7 +66,6 @@ int main(void)
     // DeleteSubgraph(tree, 6);
 
     TreeDump(tree);
-    TreeBaseDump(tree, stdout);
 
     TreeDestroy(tree);
 
