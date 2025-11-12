@@ -22,9 +22,8 @@ GetLogFile()
 
 // ============================= BASE_DUMP_FUNCTION ===========================
 
-
 tree_return_e
-TreeBaseDump(const tree_t tree, // FIXME хуета
+TreeBaseDump(const tree_t tree, 
              FILE*        file_output)
 {
     ASSERT(tree != NULL);
@@ -44,41 +43,53 @@ TreeBaseDump(const tree_t tree, // FIXME хуета
         return TREE_RETURN_EMPTY_TREE;
     }
 
-    size_t current_element = tree->nodes_array[0].right_index;
-    edge_dir_e last_direction = EDGE_DIR_NO_DIRECTION;
+    ssize_t current_element = tree->nodes_array[0].right_index;
+    size_t last_direction = (size_t) EDGE_DIR_NO_DIRECTION;
 
     do
     {
-        fprintf(file_output, "%d (", tree->nodes_array[current_element].node_value);
-
         if (tree->nodes_array[current_element].left_index != -1)
         {
-            fprintf(file_output, "(");
-            if (StackPush(bypass_stack,
-                (size_t) tree->nodes_array[current_element].right_index))
+            fprintf(file_output, "%d ( ", tree->nodes_array[current_element].node_value);
+            
+            if (StackPush(bypass_stack, (size_t) EDGE_DIR_LEFT) != 0)
             {
                 return TREE_RETURN_STACK_ERROR;
             }
+            
+            current_element = tree->nodes_array[current_element].left_index;
         }
-        else
+        else if (tree->nodes_array[current_element].right_index != -1)
         {
-            is_right_nill = true;
-        }
+            fprintf(file_output, "nill ");
 
-        if (tree->nodes_array[current_element].left_index != -1)
-        {
-            if (StackPush(bypass_stack,
-                (size_t) tree->nodes_array[current_element].left_index))
+            if (StackPush(bypass_stack, (size_t) EDGE_DIR_RIGHT))
             {
                 return TREE_RETURN_STACK_ERROR;
             }
+        
+            current_element = tree->nodes_array[current_element].right_index;
         }
         else
         {
-            is_left_nill = true;
-        }
+            fprintf(file_output, " nill nill ");
+            current_element = tree->nodes_array[current_element].parent_index;
 
-        if
+            do
+            {
+                if (StackPop(bypass_stack, &last_direction) != 0)\
+                {
+                    return TREE_RETURN_STACK_ERROR;
+                }
+
+                fprintf(file_output, ")");
+            } while ((GetStackSize(bypass_stack) != 0) || (last_direction != EDGE_DIR_LEFT));
+
+            if (last_direction == EDGE_DIR_LEFT)
+            {
+                current_element = tree->nodes_array[current_element].right_index;
+            }
+        }
     } while (GetStackSize(bypass_stack) != 0);
 
     StackDestroy(bypass_stack);
