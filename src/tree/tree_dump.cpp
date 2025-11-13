@@ -46,6 +46,8 @@ TreeBaseDump(const tree_t tree,
     ssize_t current_element = tree->nodes_array[0].right_index;
     size_t last_direction = (size_t) EDGE_DIR_NO_DIRECTION;
 
+    fprintf(file_output, "( ");
+
     do
     {
         fprintf(file_output, "%d ( ", tree->nodes_array[current_element].node_value);
@@ -103,7 +105,7 @@ TreeBaseDump(const tree_t tree,
         }
     } while (GetStackSize(bypass_stack) != 0);
 
-    fprintf(file_output, ")");
+    fprintf(file_output, "nil )");
 
     StackDestroy(bypass_stack);
 

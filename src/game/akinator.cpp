@@ -46,7 +46,7 @@ AkinatorInit(akinator_t*  akinator,
         TreeDestroy((*akinator)->object_tree);
         free((*akinator)->string_array);
         free(*akinator);
-        
+
         return output;
     }
 
@@ -57,6 +57,7 @@ akinator_return_e
 AkinatorDestroy(akinator_t* akinator)
 {
     free((*akinator)->string_array);
+    free((*akinator)->input_buffer);
     TreeDestroy((*akinator)->object_tree);
     free((*akinator));
     akinator = NULL;
@@ -65,6 +66,19 @@ AkinatorDestroy(akinator_t* akinator)
 }
 
 // ================================= INIT_HELP_FUNCTION =======================
+
+static akinator_return_e
+RecursiveParser(akinator_t akinator,
+                size_t     current_position)
+{
+    ASSERT(akinator != NULL);
+
+    akinator->input_buffer
+
+
+
+    return AKINATOR_RETURN_SUCCESS;
+}
 
 static akinator_return_e 
 ReadFileData(akinator_t  akinator,
@@ -87,22 +101,26 @@ ReadFileData(akinator_t  akinator,
         return AKINATOR_FILE_OPEN_ERROR;
     }
 
-    akinator->input_buffer = (char*) calloc(char_number, sizeof(char));
+    akinator->input_buffer = (char*) calloc(char_number + 1, sizeof(char));
     if (akinator->input_buffer == NULL)
     {
         fclose(file_input);
         return AKINATOR_RETURN_ALLOCATION_ERROR;
     }
 
+    akinator->input_buffer[char_number] = '\0';
+
     size_t read_count = fread(akinator->input_buffer , sizeof(char), char_number, file_input);
 
     if (fclose(file_input) != 0)
     {
+        free(akinator->input_buffer);
         return AKINATOR_FILE_CLOSE_ERROR;
     }
 
     if (read_count == 0)
     {
+        free(akinator->input_buffer);
         return AKINATOR_EMPTY_FILE;
     }    
 

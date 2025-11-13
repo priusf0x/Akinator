@@ -12,8 +12,9 @@ struct string_s
 
 // =========================== STRING_HANDLER_HELPERS =========================
 
-char* SkipSpaces(char* string);
-char* SkipNotSpaces(char* string);
+size_t SkipSpaces(const char* string, size_t current_position);
+size_t SkipNotSpaces(const char* string, size_t current_position);
+bool   ReadName(string_s* string_name, char* input_buffer, size_t* current_position);
 
 // ============================================================================
 

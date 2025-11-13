@@ -7,11 +7,13 @@ main()
 
     akinator_return_e output = AKINATOR_RETURN_SUCCESS;
 
-    if ((output = AkinatorInit(&akinator, "meow")) != 0)
+    if ((output = AkinatorInit(&akinator, "input_file.zov")) != 0)
     {
         fprintf(stderr, "%d error was occupied.\n", output);
         return output;
     }
+
+    printf("%s", akinator->input_buffer);
 
     AkinatorDestroy(&akinator);
 

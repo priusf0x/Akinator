@@ -1,4 +1,4 @@
-SOURCES = test.cpp common/simple_parser.cpp tree/tree.cpp stack/stack.cpp common/tools.cpp tree/tree_dump.cpp game/akinator.cpp
+SOURCES = main.cpp common/simple_parser.cpp tree/tree.cpp stack/stack.cpp common/tools.cpp tree/tree_dump.cpp game/akinator.cpp common/my_string.cpp
 
 OBJ_DIR = obj
 SOURCE_DIR = src
@@ -8,7 +8,7 @@ SOURCES  := $(addprefix $(SOURCE_DIR)/, $(SOURCES))
 
 HEADERS = $(wildcard $(SOURCE_DIR)/*.h)
 
-TARGET = tree_tester.out
+TARGET = akinator.out
 
 CC = g++
 
