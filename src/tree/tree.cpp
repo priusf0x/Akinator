@@ -333,11 +333,11 @@ DeleteSubgraph(tree_t tree,
             }
         }
 
-        tree->nodes_array[current_element].parent_index =
-        (ssize_t) tree->nodes_array[0].parent_index;
-        tree->nodes_array[0].parent_index = (ssize_t) current_element;
-
         ClearNode(tree, current_element);
+        
+        tree->nodes_array[current_element].parent_index =
+            (ssize_t) tree->nodes_array[0].parent_index;
+        tree->nodes_array[0].parent_index = (ssize_t) current_element;
 
         tree->nodes_count--;
     }

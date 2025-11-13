@@ -10,9 +10,11 @@ struct string_s
 };
 
 
-// ================
+// =========================== STRING_HANDLER_HELPERS =========================
 
 char* SkipSpaces(char* string);
 char* SkipNotSpaces(char* string);
+
+// ============================================================================
 
 #endif //MY_STRING_H
