@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "Assert.h"
-#include "tree.h"
 
 size_t
 SkipSpaces(const char* string,  
@@ -45,21 +44,24 @@ static bool
 CheckIfNil(const char* string,  // add current position 
            size_t*     current_position)
 {
+    ASSERT(string != NULL);
+    ASSERT(current_position != NULL);
+
     const char* stop_word = "nil";
 
     if (strncmp(string + *current_position, stop_word, strlen(stop_word)) == 0) 
     {
-        *current_position += sizeof(stop_word);
+        (*current_position) += strlen(stop_word);
         return true;
     }
 
     return false;
 }
 
-bool // returns true if error was occupied;
-ReadName(string_s*   string_name,
-         char*       input_buffer,
-         size_t*     current_position)
+recursion_return_e
+ReadName(string_s* string_name,
+         char*     input_buffer,
+         size_t*   current_position)
 {
     ASSERT(string_name);
     ASSERT(input_buffer);
@@ -71,25 +73,25 @@ ReadName(string_s*   string_name,
 
     if ((*current_pointer == '(') || (*current_pointer == ')'))
     {
-        return true;
+        return RECURSION_RETURN_NOT_LITERAL_ERROR;
     }
-
-    if CheckIfNil
-
-    if ((*current_pointer = '\"') ||
-        !CheckIfNil(input_buffer, current_position))
+    else if (CheckIfNil(input_buffer, current_position))
     {
-        return true;
+        return RECURSION_RETURN_NIL_SYMBOL;
+    }
+    else if ((*current_pointer != '\"'))
+    {
+        return RECURSION_RETURN_NOT_LITERAL_ERROR;
     }
 
     (*current_position)++;
-    (*current_pointer)++;
+    current_pointer++;
 
-    char* close_position = strchr(input_buffer + *current_pointer, '\"');
+    char* close_position = strchr(input_buffer + *current_position, '\"');
 
     if (close_position == NULL)
     {
-        return true ;
+        return RECURSION_RETURN_MISSING_SYMBOL_ERROR;
     }
 
     string_name->string_size = (size_t) (close_position - current_pointer);
@@ -97,12 +99,20 @@ ReadName(string_s*   string_name,
     *current_position += string_name->string_size + 1;
     *current_position = SkipSpaces(input_buffer, *current_position);
 
-    if (*current_position != ')')
-    {
-        return true;
-    }
+    return RECURSION_RETURN_SUCCESS;
+}
 
-    *current_position = SkipSpaces(input_buffer, current_position + 1);
+void
+PrintString(const string_s* string,
+            FILE* file_output)
+{
+    ASSERT(string != NULL);
+    ASSERT(file_output != NULL);
 
-    return false;
+    fprintf(file_output, "\"");
+    fwrite(string->string_source,
+           sizeof(char),
+           string->string_size,
+           file_output);
+    fprintf(file_output, "\" ");
 }

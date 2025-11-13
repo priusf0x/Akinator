@@ -9,16 +9,15 @@ enum akinator_return_e
     AKINATOR_RETURN_SUCCESS,
     AKINATOR_RETURN_TREE_INIT_ERROR,
     AKINATOR_RETURN_ALLOCATION_ERROR,
-    AKINATOR_SYSTEM_CALL_ERROR,
-    AKINATOR_FILE_OPEN_ERROR,
-    AKINATOR_FILE_CLOSE_ERROR,
-    AKINATOR_EMPTY_FILE
+    AKINATOR_RETURN_SYSTEM_CALL_ERROR,
+    AKINATOR_RETURN_FILE_OPEN_ERROR,
+    AKINATOR_RETURN_FILE_CLOSE_ERROR,
+    AKINATOR_RETURN_EMPTY_FILE,
 };
 
 struct akinator_s
 {
     tree_t    object_tree;
-    string_s* string_array;
     char*     input_buffer;
     char*     add_buffer;
 };

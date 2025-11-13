@@ -9,6 +9,11 @@
 
 static akinator_return_e ReadFileData(akinator_t akinator, const char* file_name);
 
+
+static recursion_return_e RecursiveParser(akinator_t akinator, 
+                                         size_t*    current_position, 
+                                         size_t     root_position);
+
 akinator_return_e
 AkinatorInit(akinator_t*  akinator,
              const char* file_name)
@@ -29,25 +34,19 @@ AkinatorInit(akinator_t*  akinator,
         return AKINATOR_RETURN_TREE_INIT_ERROR;
     }
 
-    const size_t start_string_count = 10;
-    (*akinator)->string_array = (string_s*) calloc(start_string_count, sizeof(string_s));
-
-    if ((*akinator)->string_array == NULL)
-    {
-        TreeDestroy((*akinator)->object_tree);
-        free(akinator);
-
-        return AKINATOR_RETURN_ALLOCATION_ERROR;
-    }
-
     akinator_return_e output = ReadFileData((*akinator), file_name);
     if (output != AKINATOR_RETURN_SUCCESS)
     {
         TreeDestroy((*akinator)->object_tree);
-        free((*akinator)->string_array);
         free(*akinator);
 
         return output;
+    }
+
+    size_t current_position = 0;
+    if (RecursiveParser(*akinator, &current_position, 0) != 0)
+    {
+        printf("huyna");
     }
 
     return AKINATOR_RETURN_SUCCESS;
@@ -56,7 +55,6 @@ AkinatorInit(akinator_t*  akinator,
 akinator_return_e 
 AkinatorDestroy(akinator_t* akinator)
 {
-    free((*akinator)->string_array);
     free((*akinator)->input_buffer);
     TreeDestroy((*akinator)->object_tree);
     free((*akinator));
@@ -65,20 +63,8 @@ AkinatorDestroy(akinator_t* akinator)
     return AKINATOR_RETURN_SUCCESS;
 }
 
-// ================================= INIT_HELP_FUNCTION =======================
+// ========================= INIT_HELP_FUNCTION ===============================
 
-static akinator_return_e
-RecursiveParser(akinator_t akinator,
-                size_t     current_position)
-{
-    ASSERT(akinator != NULL);
-
-    akinator->input_buffer
-
-
-
-    return AKINATOR_RETURN_SUCCESS;
-}
 
 static akinator_return_e 
 ReadFileData(akinator_t  akinator,
@@ -90,15 +76,15 @@ ReadFileData(akinator_t  akinator,
 
     if (stat(file_name, &file_stat) != 0)
     {
-        return AKINATOR_SYSTEM_CALL_ERROR;
+        return AKINATOR_RETURN_SYSTEM_CALL_ERROR;
     }
 
     size_t char_number = (size_t) (file_stat.st_size);
-
+    
     FILE* file_input = fopen(file_name , "r");
     if (file_input == NULL)
     {
-        return AKINATOR_FILE_OPEN_ERROR;
+        return AKINATOR_RETURN_FILE_OPEN_ERROR;
     }
 
     akinator->input_buffer = (char*) calloc(char_number + 1, sizeof(char));
@@ -109,20 +95,104 @@ ReadFileData(akinator_t  akinator,
     }
 
     akinator->input_buffer[char_number] = '\0';
-
+    
     size_t read_count = fread(akinator->input_buffer , sizeof(char), char_number, file_input);
-
+    
     if (fclose(file_input) != 0)
     {
         free(akinator->input_buffer);
-        return AKINATOR_FILE_CLOSE_ERROR;
+        return AKINATOR_RETURN_FILE_CLOSE_ERROR;
     }
 
     if (read_count == 0)
     {
         free(akinator->input_buffer);
-        return AKINATOR_EMPTY_FILE;
+        return AKINATOR_RETURN_EMPTY_FILE;
     }    
 
     return AKINATOR_RETURN_SUCCESS;
+}
+
+// =========================== RECURSION_ALGORITHM ============================
+
+static recursion_return_e
+RecursiveParser(akinator_t akinator,
+                size_t*    current_position,
+                size_t     root_position)
+{
+    ASSERT(akinator != NULL);
+    ASSERT(current_position);
+
+    if (*(akinator->input_buffer + *current_position) == '(')
+    {
+        *current_position = SkipSpaces(akinator->input_buffer, *current_position + 1);
+    }
+
+    node_s node = {.parent_index = (ssize_t) root_position, 
+                   .parent_connection = EDGE_DIR_LEFT, .right_index = -1,
+                   .left_index = -1};
+
+    recursion_return_e output = ReadName(&(node.node_value), 
+                                         akinator->input_buffer, 
+                                         current_position);
+    
+    if (output == RECURSION_RETURN_SUCCESS)
+    {
+        if (TreeAddNode(akinator->object_tree, &node) != 0)
+        {
+            return RECURSION_RETURN_TREE_ERROR;
+        }
+        
+        output = RecursiveParser(akinator, 
+                current_position, node.index_in_tree); 
+
+        if (output != RECURSION_RETURN_SUCCESS)
+        {
+            return output;
+        }
+    }
+    else if (output != RECURSION_RETURN_NIL_SYMBOL)
+    {
+        printf("%d", *current_position);   
+        return output;
+    }
+
+    node.parent_connection = EDGE_DIR_RIGHT;
+
+    output = ReadName(&(node.node_value), 
+                      akinator->input_buffer, 
+                      current_position);
+
+    if (output == RECURSION_RETURN_SUCCESS)
+    {
+        if (TreeAddNode(akinator->object_tree, &node) != 0)
+        {
+            return RECURSION_RETURN_TREE_ERROR;
+        }
+        
+        output = RecursiveParser(akinator, 
+                current_position, node.index_in_tree); 
+
+        if (output != RECURSION_RETURN_SUCCESS)
+        {
+            return output;
+        }
+    }
+    else if (output != RECURSION_RETURN_NIL_SYMBOL)
+    {
+        return output;
+    }
+
+    *current_position = SkipSpaces(akinator->input_buffer,
+                                   *current_position);
+
+    if (akinator->input_buffer[*current_position] != ')')
+    {
+        return RECURSION_RETURN_MISSING_SYMBOL_ERROR;
+    }
+
+    *current_position = SkipSpaces(akinator->input_buffer,
+                                   *current_position + 1);
+
+    return RECURSION_RETURN_SUCCESS;
 }

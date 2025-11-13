@@ -5,6 +5,7 @@
 
 #include "Assert.h"
 #include "stack.h"
+#include "my_string.h"
 
 static tree_return_e SetTreeSize(tree_t tree, size_t  new_size);
 static tree_return_e NumerizeElements(tree_t tree, size_t start_index);
@@ -60,7 +61,7 @@ ClearNode(tree_t tree,
     tree->nodes_array[current_node].right_index = -1;
     tree->nodes_array[current_node].left_index = -1;
     tree->nodes_array[current_node].parent_connection = EDGE_DIR_NO_DIRECTION;
-    tree->nodes_array[current_node].node_value = 0;
+    tree->nodes_array[current_node].node_value = {};
 }
 
 static tree_return_e

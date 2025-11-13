@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "my_string.h"
+
 enum edge_dir_e
 {
     EDGE_DIR_NO_DIRECTION  = 0,
@@ -22,7 +24,7 @@ enum tree_return_e
     TREE_RETURN_EMPTY_TREE
 };
 
-typedef int node_data_t;
+typedef string_s node_data_t;
 
 struct node_s
 {

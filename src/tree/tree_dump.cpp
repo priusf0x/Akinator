@@ -5,6 +5,7 @@
 #include "Assert.h"
 #include "tools.h"
 #include "stack.h"
+#include "my_string.h"
 
 static tree_return_e TreeDot(const tree_t tree, const char* current_time);
 static void DrawNode(const node_s* node, FILE* dot_file);
@@ -21,6 +22,7 @@ GetLogFile()
 }
 
 // ============================= BASE_DUMP_FUNCTION ===========================
+
 
 tree_return_e
 TreeBaseDump(const tree_t tree, 
@@ -50,7 +52,9 @@ TreeBaseDump(const tree_t tree,
 
     do
     {
-        fprintf(file_output, "%d ( ", tree->nodes_array[current_element].node_value);
+        PrintString(&(tree->nodes_array[current_element].node_value), file_output);
+
+        fprintf(file_output, "( ");
 
         if (tree->nodes_array[current_element].left_index != -1)
         {
@@ -181,7 +185,12 @@ PrintElementsInfo(const tree_t tree,
         fprintf(file_output, "<p> <h4> <li>index in table: %zu\n <br/>", tree->nodes_array[index].index_in_tree);
         fprintf(file_output, "left index: %ld \n <br/>", tree->nodes_array[index].left_index);
         fprintf(file_output, "right index: %ld\n <br/>", tree->nodes_array[index].right_index);
-        fprintf(file_output, "value: %d\n <br/>", tree->nodes_array[index].node_value);
+        fprintf(file_output, "value:");
+        if (tree->nodes_array[index].parent_connection != EDGE_DIR_NO_DIRECTION)
+        {
+            PrintString(&(tree->nodes_array[index].node_value), file_output);
+        }
+        fprintf(file_output, "<br/>");
         fprintf(file_output, "parent_index: %ld\n\n </li></p></h4>", tree->nodes_array[index].parent_index);
     }
 }
@@ -249,13 +258,13 @@ DrawNode(const node_s* node,
     ASSERT(dot_file != NULL);
 
     static const char* NODE_TEMPLATE = "%ld[label = \"{parent index = %ld| phys index = %ld"
-                                       "| value = %d|{left index = %ld | right index = %ld}}\"];\n";
+                                       "| value = %.*s|{left index = %ld | right index = %ld}}\"];\n";
     const size_t string_size = 250;
     char graphviz_node[string_size] = {};
 
     snprintf(graphviz_node, string_size, NODE_TEMPLATE, node->index_in_tree,
-             node->parent_index, node->index_in_tree, node->node_value,
-             node->left_index, node->right_index);
+             node->parent_index, node->index_in_tree, node->node_value.string_size,
+             node->node_value.string_source ,node->left_index, node->right_index);
 
     fprintf(dot_file, "%s\n", graphviz_node);
 

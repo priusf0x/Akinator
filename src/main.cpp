@@ -13,10 +13,11 @@ main()
         return output;
     }
 
-    printf("%s", akinator->input_buffer);
+    // printf("%s", akinator->input_buffer);
 
+    TreeDump(akinator->object_tree);
+    
     AkinatorDestroy(&akinator);
-
     // Start State Machine 
 
     // Destroy Akinator 
