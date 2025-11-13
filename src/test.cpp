@@ -14,11 +14,11 @@ int main(void)
                      .right_index  = -1, .left_index        = -1,
                      .node_value   = 12};
 
-    node_s node_3 = {.parent_index = 2, .parent_connection = EDGE_DIR_RIGHT,
+    node_s node_3 = {.parent_index = 2, .parent_connection = EDGE_DIR_LEFT,
                      .right_index  = -1,  .left_index        = -1,
                      .node_value   = 32};
 
-    node_s node_4 = {.parent_index = 2, .parent_connection = EDGE_DIR_LEFT,
+    node_s node_4 = {.parent_index = 2, .parent_connection = EDGE_DIR_RIGHT,
                      .right_index  = -1, .left_index        = -1,
                      .node_value   = 69};
 
@@ -51,23 +51,23 @@ int main(void)
     {
         printf("dolboeb\n");
     }
-    TreeBaseDump(tree, stdout);
-
     if (TreeAddNode(tree, &node_5) != 0)
     {
         printf("dolboeb\n");
     }
-
+    
     if (TreeAddNode(tree, &node_6) != 0)
     {
         printf("dolboeb\n");
     }
-
+    
     // DeleteSubgraph(tree, 6);
-
+    
+    TreeBaseDump(tree, stdout);
+    
     TreeDump(tree);
-
+    
     TreeDestroy(tree);
-
+    
     return 0;
 }

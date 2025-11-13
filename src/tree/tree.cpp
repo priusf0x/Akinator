@@ -136,7 +136,7 @@ TreeAddNode(tree_t  tree,
 
     node->index_in_tree = (size_t) tree->nodes_array[0].parent_index;
     tree->nodes_array[0].parent_index =
-    tree->nodes_array[node->index_in_tree].parent_index;
+        tree->nodes_array[node->index_in_tree].parent_index;
 
     ConnectNodes(tree, node, children_usage);
 

@@ -78,7 +78,7 @@ TreeBaseDump(const tree_t tree,
             {
                 if (GetStackSize(bypass_stack) == 0)
                 {
-                    break;
+                    break; 
                 }
 
                 if (StackPop(bypass_stack, &last_direction) != 0)\
@@ -88,7 +88,8 @@ TreeBaseDump(const tree_t tree,
                 current_element = tree->nodes_array[current_element].parent_index;
                 
                 fprintf(file_output, ") ");
-            } while (last_direction != EDGE_DIR_LEFT);
+            } while ((last_direction != EDGE_DIR_LEFT)
+                     || (tree->nodes_array[current_element].right_index == -1));
 
             if (last_direction == EDGE_DIR_LEFT)
             {
