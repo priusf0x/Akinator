@@ -26,6 +26,7 @@ size_t SkipSpaces(const char* string, size_t current_position);
 size_t SkipNotSpaces(const char* string, size_t current_position);
 recursion_return_e ReadName(string_s* string_name, char* input_buffer, size_t* current_position);
 void PrintString(const string_s* string, FILE* file_output);
+bool CheckIfSymbol(char* string, size_t* current_position, char symbol);
 
 // ============================================================================
 

@@ -16,7 +16,7 @@ static recursion_return_e RecursiveParser(akinator_t akinator,
 
 akinator_return_e
 AkinatorInit(akinator_t*  akinator,
-             const char* file_name)
+             const char*  file_name)
 {   
     ASSERT(akinator != NULL);
     ASSERT(file_name != NULL);
@@ -65,7 +65,6 @@ AkinatorDestroy(akinator_t* akinator)
 
 // ========================= INIT_HELP_FUNCTION ===============================
 
-
 static akinator_return_e 
 ReadFileData(akinator_t  akinator,
              const char* file_name)
@@ -113,7 +112,18 @@ ReadFileData(akinator_t  akinator,
     return AKINATOR_RETURN_SUCCESS;
 }
 
+// =============================== ADDING_STRING ==============================
+
+
+
 // =========================== RECURSION_ALGORITHM ============================
+
+
+static recursion_return_e 
+ReadNode(akinator_t akinator,
+         size_t*    curren_position,
+         size_t     root_position,
+         edge_dir_e node_position);
 
 static recursion_return_e
 RecursiveParser(akinator_t akinator,
@@ -123,13 +133,46 @@ RecursiveParser(akinator_t akinator,
     ASSERT(akinator != NULL);
     ASSERT(current_position);
 
-    if (*(akinator->input_buffer + *current_position) == '(')
+    if (!CheckIfSymbol(akinator->input_buffer, current_position, '('))
     {
-        *current_position = SkipSpaces(akinator->input_buffer, *current_position + 1);
+        return RECURSION_RETURN_MISSING_SYMBOL_ERROR;
     }
 
+    recursion_return_e output = RECURSION_RETURN_SUCCESS;
+
+    output = ReadNode(akinator, current_position, root_position, EDGE_DIR_LEFT);
+
+    if (output != RECURSION_RETURN_SUCCESS)
+    {
+        return output;
+    }
+    
+    output = ReadNode(akinator, current_position, root_position, EDGE_DIR_RIGHT);
+
+    if (output != RECURSION_RETURN_SUCCESS)
+    {
+        return output;
+    }
+
+    if (!CheckIfSymbol(akinator->input_buffer, current_position, ')'))
+    {
+        return RECURSION_RETURN_MISSING_SYMBOL_ERROR;
+    }
+
+    return RECURSION_RETURN_SUCCESS;
+}
+
+static recursion_return_e 
+ReadNode(akinator_t akinator,
+         size_t*    current_position,
+         size_t     root_position,
+         edge_dir_e node_position)
+{
+    ASSERT(akinator != NULL);
+    ASSERT(current_position != NULL);
+
     node_s node = {.parent_index = (ssize_t) root_position, 
-                   .parent_connection = EDGE_DIR_LEFT, .right_index = -1,
+                   .parent_connection = node_position, .right_index = -1,
                    .left_index = -1};
 
     recursion_return_e output = ReadName(&(node.node_value), 
@@ -142,36 +185,9 @@ RecursiveParser(akinator_t akinator,
         {
             return RECURSION_RETURN_TREE_ERROR;
         }
-        
-        output = RecursiveParser(akinator, 
-                current_position, node.index_in_tree); 
 
-        if (output != RECURSION_RETURN_SUCCESS)
-        {
-            return output;
-        }
-    }
-    else if (output != RECURSION_RETURN_NIL_SYMBOL)
-    {
-        printf("%d", *current_position);   
-        return output;
-    }
-
-    node.parent_connection = EDGE_DIR_RIGHT;
-
-    output = ReadName(&(node.node_value), 
-                      akinator->input_buffer, 
-                      current_position);
-
-    if (output == RECURSION_RETURN_SUCCESS)
-    {
-        if (TreeAddNode(akinator->object_tree, &node) != 0)
-        {
-            return RECURSION_RETURN_TREE_ERROR;
-        }
-        
-        output = RecursiveParser(akinator, 
-                current_position, node.index_in_tree); 
+        output = RecursiveParser(akinator, current_position,
+                                 node.index_in_tree); 
 
         if (output != RECURSION_RETURN_SUCCESS)
         {
@@ -182,17 +198,6 @@ RecursiveParser(akinator_t akinator,
     {
         return output;
     }
-
-    *current_position = SkipSpaces(akinator->input_buffer,
-                                   *current_position);
-
-    if (akinator->input_buffer[*current_position] != ')')
-    {
-        return RECURSION_RETURN_MISSING_SYMBOL_ERROR;
-    }
-
-    *current_position = SkipSpaces(akinator->input_buffer,
-                                   *current_position + 1);
-
+    
     return RECURSION_RETURN_SUCCESS;
 }

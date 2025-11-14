@@ -45,7 +45,7 @@ TreeBaseDump(const tree_t tree,
         return TREE_RETURN_EMPTY_TREE;
     }
 
-    ssize_t current_element = tree->nodes_array[0].right_index;
+    ssize_t current_element = tree->nodes_array[0].left_index;
     size_t last_direction = (size_t) EDGE_DIR_NO_DIRECTION;
 
     fprintf(file_output, "( ");
@@ -94,6 +94,7 @@ TreeBaseDump(const tree_t tree,
                 current_element = tree->nodes_array[current_element].parent_index;
                 
                 fprintf(file_output, ") ");
+
             } while ((last_direction != EDGE_DIR_LEFT)
                      || (tree->nodes_array[current_element].right_index == -1));
 
@@ -109,7 +110,7 @@ TreeBaseDump(const tree_t tree,
         }
     } while (GetStackSize(bypass_stack) != 0);
 
-    fprintf(file_output, "nil )");
+    fprintf(file_output, ") nil )");
 
     StackDestroy(bypass_stack);
 

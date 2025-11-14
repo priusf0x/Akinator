@@ -102,9 +102,24 @@ ReadName(string_s* string_name,
     return RECURSION_RETURN_SUCCESS;
 }
 
+bool 
+CheckIfSymbol(char*   string,
+              size_t* current_position,
+              char    symbol)
+{
+    *current_position = SkipSpaces(string, *current_position);
+    if (*(string + *current_position) == symbol)
+    {
+        *current_position = SkipSpaces(string, *current_position + 1);
+        return true;
+    }
+
+    return false;
+}
+
 void
 PrintString(const string_s* string,
-            FILE* file_output)
+            FILE*           file_output)
 {
     ASSERT(string != NULL);
     ASSERT(file_output != NULL);

@@ -16,7 +16,8 @@ main()
     // printf("%s", akinator->input_buffer);
 
     TreeDump(akinator->object_tree);
-    
+    TreeBaseDump(akinator->object_tree, stdout);
+
     AkinatorDestroy(&akinator);
     // Start State Machine 
 
