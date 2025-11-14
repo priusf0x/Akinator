@@ -112,10 +112,6 @@ ReadFileData(akinator_t  akinator,
     return AKINATOR_RETURN_SUCCESS;
 }
 
-// =============================== ADDING_STRING ==============================
-
-
-
 // =========================== RECURSION_ALGORITHM ============================
 
 
