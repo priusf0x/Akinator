@@ -48,4 +48,18 @@ enum user_option_e
     USER_OPTION_EXIT
 };
 
+
+struct visualisation_context 
+{
+    WINDOW* img_window;
+    WINDOW* question_window;
+    WINDOW* scan_window;
+    int     rows;
+    int     columns;
+};
+
+// ======================== SCREEN_VISUALISATION_FUNCTIONS ====================
+
+void ScreenContextInit(visualisation_context* screen);
+
 #endif // VISAULS_H

@@ -30,7 +30,7 @@ AkinatorInit(akinator_t*  akinator,
     const size_t start_tree_size = 10;
     if (TreeInit(&((*akinator)->object_tree), start_tree_size) != 0)
     {
-        free(akinator);
+        free(*akinator);
         return AKINATOR_RETURN_TREE_INIT_ERROR;
     }
 
@@ -43,10 +43,26 @@ AkinatorInit(akinator_t*  akinator,
         return output;
     }
 
+// test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted 
+
+    const size_t max_buffer_count = 1024;
+    (*akinator)->add_buffer = (char*) calloc(max_buffer_count, sizeof(char));
+    
+    if ((*akinator)->add_buffer == NULL)
+    {
+        TreeDestroy((*akinator)->object_tree);
+        free((*akinator)->input_buffer);
+        free(*akinator);
+
+        return AKINATOR_RETURN_ALLOCATION_ERROR;
+    }
+
+// test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted
+
     size_t current_position = 0;
     if (RecursiveParser(*akinator, &current_position, 0) != 0)
     {
-        printf("huyna");
+        return AKINATOR_RETURN_READ_ERROR;
     }
 
     return AKINATOR_RETURN_SUCCESS;
@@ -55,8 +71,9 @@ AkinatorInit(akinator_t*  akinator,
 akinator_return_e 
 AkinatorDestroy(akinator_t* akinator)
 {
-    free((*akinator)->input_buffer);
     TreeDestroy((*akinator)->object_tree);
+    free((*akinator)->input_buffer);
+    free((*akinator)->add_buffer);
     free((*akinator));
     akinator = NULL;
 
@@ -69,7 +86,8 @@ static akinator_return_e
 ReadFileData(akinator_t  akinator,
              const char* file_name)
 {
-    ASSERT(akinator);
+    ASSERT(akinator != NULL);
+    ASSERT(file_name != NULL);
 
     struct stat file_stat = {};
 

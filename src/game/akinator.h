@@ -13,13 +13,14 @@ enum akinator_return_e
     AKINATOR_RETURN_FILE_OPEN_ERROR,
     AKINATOR_RETURN_FILE_CLOSE_ERROR,
     AKINATOR_RETURN_EMPTY_FILE,
+    AKINATOR_RETURN_READ_ERROR
 };
 
 struct akinator_s
 {
-    tree_t    object_tree;
-    char*     input_buffer;
-    char*     add_buffer;
+    tree_t object_tree;
+    char*  input_buffer;
+    char*  add_buffer;
 };
 
 typedef akinator_s* akinator_t;

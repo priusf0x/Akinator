@@ -17,7 +17,7 @@ main()
 
     TreeDump(akinator->object_tree);
     TreeBaseDump(akinator->object_tree, stdout);
-
+    // state machine 
     AkinatorDestroy(&akinator);
     // Start State Machine 
 

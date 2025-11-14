@@ -24,6 +24,7 @@ static void destroy_win(WINDOW *local_win) {
 static void ShowMessage(WINDOW* window, const char* message, size_t message_length);
 static void PrintASCIImage(WINDOW* window, const char* asci_image);
 static user_option_e ProvideChoice();
+void ReadUserInput(WINDOW* window, char* string, size_t max_string_count);
 
 int
 main()
@@ -53,12 +54,21 @@ main()
 
     WINDOW* quest_win = create_newwin(question_height, question_width,
                                       question_start_y, question_start_x);
-
     
     ShowMessage(quest_win, "Do you see theeeeese cocks", 25);
 
     ProvideChoice();
 
+    const int scan_width   = (int) (0.6 * columns);
+    const int scan_heigth  = (int) (5);
+    const int scan_start_x = (int) (0.0 * columns);
+    const int scan_start_y = (int) (0.3 * rows); 
+
+    WINDOW* scan_win = create_newwin(scan_heigth, scan_width,
+                                     scan_start_y, scan_start_x);
+
+    char meow[20] = {};
+    ReadUserInput(scan_win, meow, 20);
     refresh();
     
     destroy_win(quest_win);  
@@ -68,7 +78,36 @@ main()
     return 0;
 } 
 
-static user_option_e
+void 
+ScreenContextInit(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
+ 
+    initscr();
+    getmaxyx(stdscr , screen->rows, screen->columns);
+    curs_set(0);
+    refresh();
+}
+
+
+
+
+void 
+ReadUserInput(WINDOW* window,  
+              char*   string,
+              size_t  max_string_count)
+{
+    ASSERT(window != NULL);
+    ASSERT(string != NULL);
+
+    echo();
+    mvwprintw(window, 1, 2, "Your input:");
+
+    mvwgetnstr(window, 3, 2, string, max_string_count);
+
+    noecho();
+}
+user_option_e
 ProvideChoice()
 {
     noecho();
@@ -116,6 +155,11 @@ ProvideChoice()
 
     } while (user_input != 'q' && user_input != '\n');
 
+    mvprintw(yes_button_position_y, yes_button_position_x, "   ");
+    mvprintw(no_button_position_y, no_button_position_x, "   ");
+
+    refresh();
+
     return current_state;
 }
 
@@ -127,7 +171,7 @@ ShowMessage(WINDOW*     window,
     ASSERT(window != NULL);
     ASSERT(message != NULL);
 
-    const size_t delay = 50000;
+    const size_t delay = 100000;
 
     const char* character_ask = "Pe'trovich says...";
 

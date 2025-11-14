@@ -2,7 +2,8 @@
     "files.associations": {
         "bitset": "cpp",
         "format": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "cstdlib": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
