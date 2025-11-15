@@ -10,8 +10,6 @@
 static tree_return_e SetTreeSize(tree_t tree, size_t  new_size);
 static tree_return_e NumerizeElements(tree_t tree, size_t start_index);
 
-const ssize_t NO_LINK = -1;
-
 // =========================== MEMORY_CONTROLLING ===============================
 
 tree_return_e
@@ -176,12 +174,14 @@ CheckTreeNode(tree_t  tree,
         return INVALID_NODE;
     }
     else if ((child_left != NO_LINK) && (output |= CHILD_LEFT_USAGE)
-              && (child_left == (ssize_t) node->index_in_tree))
+              && (child_left == (ssize_t) node->index_in_tree
+                  || child_left == 0))
     {
         return INVALID_NODE;
     }
     else if ((child_right != NO_LINK) && (output |= CHILD_RIGHT_USAGE)
-              && (child_right == (ssize_t) node->index_in_tree))
+              && (child_right == (ssize_t) node->index_in_tree
+                  || child_right == 0))
     {
         return INVALID_NODE;
     }
@@ -233,11 +233,11 @@ ConnectNodes(tree_t  tree,
     {
         if (right_element->parent_connection == EDGE_DIR_RIGHT)
         {
-            tree->nodes_array[right_element->parent_index].right_index = -1;
+            tree->nodes_array[right_element->parent_index].right_index = NO_LINK;
         }
         else if (right_element->parent_connection == EDGE_DIR_LEFT)
         {
-            tree->nodes_array[right_element->parent_index].left_index = -1;
+            tree->nodes_array[right_element->parent_index].left_index = NO_LINK;
         }
 
         right_element->parent_index = (ssize_t) node->index_in_tree;
@@ -247,11 +247,11 @@ ConnectNodes(tree_t  tree,
     {
         if (left_element->parent_connection == EDGE_DIR_RIGHT)
         {
-            tree->nodes_array[left_element->parent_index].right_index = -1;
+            tree->nodes_array[left_element->parent_index].right_index = NO_LINK;
         }
         else if (left_element->parent_connection == EDGE_DIR_LEFT)
         {
-            tree->nodes_array[left_element->parent_index].left_index = -1;
+            tree->nodes_array[left_element->parent_index].left_index = NO_LINK;
         }
 
         left_element->parent_index = (ssize_t) node->index_in_tree;
@@ -295,11 +295,11 @@ DeleteSubgraph(tree_t tree,
     }
     else if (tree->nodes_array[node_index].parent_connection == EDGE_DIR_RIGHT)
     {
-        tree->nodes_array[tree->nodes_array[node_index].parent_index].right_index = -1;
+        tree->nodes_array[tree->nodes_array[node_index].parent_index].right_index = NO_LINK;
     }
     else if (tree->nodes_array[node_index].parent_connection == EDGE_DIR_LEFT)
     {
-        tree->nodes_array[tree->nodes_array[node_index].parent_index].left_index = -1;
+        tree->nodes_array[tree->nodes_array[node_index].parent_index].left_index = NO_LINK;
     }
 
     if (StackPush(bypass_stack, node_index) != 0)
@@ -316,7 +316,7 @@ DeleteSubgraph(tree_t tree,
             return TREE_RETURN_STACK_ERROR;
         }
 
-        if (tree->nodes_array[current_element].right_index != -1)
+        if (tree->nodes_array[current_element].right_index != NO_LINK)
         {
             if (StackPush(bypass_stack,
                 (size_t) tree->nodes_array[current_element].right_index))
@@ -325,7 +325,7 @@ DeleteSubgraph(tree_t tree,
             }
         }
 
-        if (tree->nodes_array[current_element].left_index != -1)
+        if (tree->nodes_array[current_element].left_index != NO_LINK)
         {
             if (StackPush(bypass_stack,
                 (size_t) tree->nodes_array[current_element].left_index))

@@ -3,6 +3,7 @@
 
 #include "tree.h"
 #include "my_string.h"
+#include "Assert.h"
 
 enum akinator_return_e
 {
@@ -35,5 +36,8 @@ akinator_return_e AkinatorDestroy(akinator_t* akinator);
 
 akinator_return_e StartAkinatorGame(akinator_t akinator);
 
+// =============================== ASSERT_AKINATOR ============================
+
+#define ASSERT_AKINATOR(X) do { ASSERT((X)->object_tree != NULL); ASSERT((X)->input_buffer != NULL); ASSERT((X)->add_buffer);} while(0);
 
 #endif // AKINATOR_H

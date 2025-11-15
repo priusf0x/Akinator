@@ -53,34 +53,8 @@ static WINDOW *create_newwin(int height, int width, int starty, int startx) {
     return local_win;
 }
 
-static void ShowMessage(WINDOW* window, const char* message, size_t message_length);
 static void PrintASCIImage(WINDOW* window, const char* asci_image);
-static user_option_e ProvideChoice();
 void ReadUserInput(WINDOW* window, char* string, size_t max_string_count);
-
-// int
-// main()
-// {
-
-
-//     const int scan_width   = (int) (0.6 * columns);
-//     const int scan_heigth  = (int) (5);
-//     const int scan_start_x = (int) (0.0 * columns);
-//     const int scan_start_y = (int) (0.3 * rows); 
-
-//     WINDOW* scan_win = create_newwin(scan_heigth, scan_width,
-//                                      scan_start_y, scan_start_x);
-
-//     char meow[20] = {};
-//     ReadUserInput(scan_win, meow, 20);
-//     refresh();
-    
-//     destroy_win(quest_win);  
-//     destroy_win(img_win);
-//     endwin();
-
-//     return 0;
-// } 
 
 // ========================== MEMORY_CONTROLLING ==============================
 
@@ -157,7 +131,7 @@ ScanWindowInit(visualisation_context* screen)
     const int scan_start_x = (int) (0.0 * columns);
     const int scan_start_y = (int) (0.3 * rows); 
 
-    WINDOW* scan_win = create_newwin(scan_heigth, scan_width,
+    screen->scan_window = create_newwin(scan_heigth, scan_width,
                                      scan_start_y, scan_start_x);
 }
 
@@ -179,14 +153,12 @@ ReadUserInput(WINDOW* window,
 
     echo();
     mvwprintw(window, 1, 2, "Your input:");
-
     mvwgetnstr(window, 3, 2, string, max_string_count);
-
     noecho();
 }
 
 user_option_e
-ProvideChoice()
+GiveChoice()
 {
     noecho();
 
@@ -241,49 +213,49 @@ ProvideChoice()
     return current_state;
 }
 
-static void 
-ShowMessage(WINDOW*     window,
-            const char* message,
-            size_t      message_length)
+void 
+ShowMessage(visualisation_context* screen,
+            const char*            message,
+            size_t                 message_length)
 {
-    ASSERT(window != NULL);
+    ASSERT(screen != NULL);
+    ASSERT(screen->question_window != NULL);
     ASSERT(message != NULL);
+
+    WINDOW* question_window = screen->question_window;
 
     const size_t delay = 100000;
 
     const char* character_ask = "Pe'trovich asks if...";
 
-    wclear(window);
-    box(window, 0, 0);
+    wclear(question_window);
+    box(question_window, 0, 0);
 
-    wattron(window, A_BOLD);
-    mvwprintw(window, 1, 1, "%s", character_ask);
-    wattroff(window, A_BOLD);
+    wattron(question_window, A_BOLD);
+    mvwprintw(question_window, 1, 1, "%s", character_ask);
+    wattroff(question_window, A_BOLD);
 
-    wattron(window, A_ITALIC);
-    wmove(window, 2, 2);
+    wattron(question_window, A_ITALIC);
+    wmove(question_window, 2, 2);
     for (size_t letter_num = 0; letter_num < message_length; letter_num++)
     {
-        waddch(window, (unsigned char) message[letter_num]);
+        waddch(question_window, (unsigned char) message[letter_num]);
         usleep(delay);
-        wrefresh(window);
+        wrefresh(question_window);
     }
-    wattroff(window, A_ITALIC);
+    wattroff(question_window, A_ITALIC);
 
-    wrefresh(window);
+    wrefresh(question_window);
 }
 
-
-static void 
-PrintASCIImage(WINDOW*     window,
-               const char* asci_image)
+void 
+ShowAkinator(visualisation_context* screen)
 {
-    ASSERT(window != NULL);
-    ASSERT(asci_image != NULL);
+    ASSERT(screen != NULL);
 
-    wclear(window);
+    wclear(screen->img_window);
 
-    wprintw(window, "%s", asci_image);
+    wprintw(screen->img_window, "%s", AKINATOR);
 
-    wrefresh(window);
+    wrefresh(screen->img_window);
 }

@@ -57,7 +57,7 @@ TreeBaseDump(const tree_t tree,
 
         fprintf(file_output, "( ");
 
-        if (tree->nodes_array[current_element].left_index != -1)
+        if (tree->nodes_array[current_element].left_index != NO_LINK)
         {
             if (StackPush(bypass_stack, (size_t) EDGE_DIR_LEFT) != 0)
             {
@@ -66,7 +66,7 @@ TreeBaseDump(const tree_t tree,
             
             current_element = tree->nodes_array[current_element].left_index;
         }
-        else if (tree->nodes_array[current_element].right_index != -1)
+        else if (tree->nodes_array[current_element].right_index != NO_LINK)
         {
             fprintf(file_output, "nil ");
 
@@ -88,7 +88,7 @@ TreeBaseDump(const tree_t tree,
                     break; 
                 }
 
-                if (StackPop(bypass_stack, &last_direction) != 0)\
+                if (StackPop(bypass_stack, &last_direction) != 0)
                 {
                     return TREE_RETURN_STACK_ERROR;
                 }
@@ -97,7 +97,7 @@ TreeBaseDump(const tree_t tree,
                 fprintf(file_output, ") ");
 
             } while ((last_direction != EDGE_DIR_LEFT)
-                     || (tree->nodes_array[current_element].right_index == -1));
+                     || (tree->nodes_array[current_element].right_index == NO_LINK));
 
             if (last_direction == EDGE_DIR_LEFT)
             {

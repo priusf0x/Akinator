@@ -45,6 +45,8 @@ struct tree_s
 
 typedef tree_s* tree_t;
 
+const ssize_t NO_LINK = -1;
+
 // ============================= MEMORY_CONTROLLING ===========================
 
 tree_return_e TreeInit(tree_t* tree, size_t start_tree_size);
