@@ -57,6 +57,8 @@ AkinatorInit(akinator_t*  akinator,
         return AKINATOR_RETURN_ALLOCATION_ERROR;
     }
 
+    (*akinator)->free = 0;
+
 // test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted
 
     size_t current_position = 0;

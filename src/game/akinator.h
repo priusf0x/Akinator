@@ -21,6 +21,7 @@ struct akinator_s
     tree_t object_tree;
     char*  input_buffer;
     char*  add_buffer;
+    size_t free;
 };
 
 typedef akinator_s* akinator_t;

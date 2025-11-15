@@ -1,10 +1,48 @@
-#include "visual.h"
+#include "visuals.h"
 
 #include <ncurses.h>   
 #include <unistd.h>
 #include <string.h>
 
 #include "Assert.h"
+
+static const char* AKINATOR = 
+R"(--------------------------------------------
+--------------------------------------------
+--------------------------------------------
+--------------------+++++-------------------
+------------------++--+++++------+++++++++++
+----------------+--+###########+++++++++++++
+-----------------+##########++++++++++++++++
+-----------------+#########+++++++----+-++++
+----------------+###########++++-----+++-+++
+-----------------+++++++++-----------+++++++
+-----------------+-----#+------------+++++++
+---------------++#+++####++++-++-----+++++++
+--------------+++#######+-+###++-----+++++++
+-------------++++#####++---+#+++----++++++++
+--------------++++###+++++-+++------++++++++
+--------------+++++++++++--+++------++++++++
+---------------++--+++##++++---..----+++++++
+-------------------------------.---.------++
+--------------------+-----------------------
+-------------------++++---------+-----------
+-------------------##+++++++++++------------
+------------------+############-------------
+-------------------+###########+------------
+------------------+############-------------
+.-----------------+###########+-------------
+..---------------+############---------.----
+..---------------+###########+--------------
+..---------------+###########---------------
+.----------------###########+-------------..
+.---------------+###########-------------...
+----------------###########+------.----.....
+----------------###########+-----.----......
+-----..--------+##########+-----.---........
+-----..-------.-+####+++#++----..-..........
+-------------.-+#########+----..---.........
+.........---..-##########+---..----.........)";       
 
 static WINDOW *create_newwin(int height, int width, int starty, int startx) {
     WINDOW *local_win;
@@ -15,68 +53,36 @@ static WINDOW *create_newwin(int height, int width, int starty, int startx) {
     return local_win;
 }
 
-static void destroy_win(WINDOW *local_win) {
-    wclear(local_win);
-    wrefresh(local_win);
-    delwin(local_win);
-}
-
 static void ShowMessage(WINDOW* window, const char* message, size_t message_length);
 static void PrintASCIImage(WINDOW* window, const char* asci_image);
 static user_option_e ProvideChoice();
 void ReadUserInput(WINDOW* window, char* string, size_t max_string_count);
 
-int
-main()
-{
-    initscr();
-    int rows = 0, columns = 0;
-    getmaxyx(stdscr ,rows, columns);
-    curs_set(0);
-    refresh();
+// int
+// main()
+// {
 
-    const int image_width   = (int) (0.5 * columns);
-    const int image_heigth  = (int) (0.5 * rows);
-    const int image_start_x = (int) (0.65 * columns);
-    const int image_start_y = (int) (0.05 * rows); 
+
+//     const int scan_width   = (int) (0.6 * columns);
+//     const int scan_heigth  = (int) (5);
+//     const int scan_start_x = (int) (0.0 * columns);
+//     const int scan_start_y = (int) (0.3 * rows); 
+
+//     WINDOW* scan_win = create_newwin(scan_heigth, scan_width,
+//                                      scan_start_y, scan_start_x);
+
+//     char meow[20] = {};
+//     ReadUserInput(scan_win, meow, 20);
+//     refresh();
     
-    WINDOW* img_win = create_newwin(image_heigth, image_width,
-                                    image_start_y, image_start_x);
+//     destroy_win(quest_win);  
+//     destroy_win(img_win);
+//     endwin();
 
-    PrintASCIImage(img_win, AKINATOR);
-    
-    refresh();
+//     return 0;
+// } 
 
-    const int question_width   = (int) (0.6 * columns);
-    const int question_height  = (int) (0.2 * rows);
-    const int question_start_y = (int) (0.05 * rows);
-    const int question_start_x =        0;
-
-    WINDOW* quest_win = create_newwin(question_height, question_width,
-                                      question_start_y, question_start_x);
-    
-    ShowMessage(quest_win, "Do you see theeeeese cocks", 25);
-
-    ProvideChoice();
-
-    const int scan_width   = (int) (0.6 * columns);
-    const int scan_heigth  = (int) (5);
-    const int scan_start_x = (int) (0.0 * columns);
-    const int scan_start_y = (int) (0.3 * rows); 
-
-    WINDOW* scan_win = create_newwin(scan_heigth, scan_width,
-                                     scan_start_y, scan_start_x);
-
-    char meow[20] = {};
-    ReadUserInput(scan_win, meow, 20);
-    refresh();
-    
-    destroy_win(quest_win);  
-    destroy_win(img_win);
-    endwin();
-
-    return 0;
-} 
+// ========================== MEMORY_CONTROLLING ==============================
 
 void 
 ScreenContextInit(visualisation_context* screen)
@@ -89,8 +95,79 @@ ScreenContextInit(visualisation_context* screen)
     refresh();
 }
 
+void 
+ScreenContextDestroy(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
 
+    DestroyWindow(screen->img_window);  
+    DestroyWindow(screen->question_window);
+    DestroyWindow(screen->scan_window);
+    *screen = {};
 
+    endwin();
+}
+
+// ========================= WINDOW_MEM_CONTROLLING ===========================
+
+void 
+QuestionWindowInit(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
+
+    const int columns = screen->columns;
+    const int rows = screen->rows;
+
+    const int question_width   = (int) (0.6 * columns);
+    const int question_height  = (int) (0.2 * rows);
+    const int question_start_y = (int) (0.05 * rows);
+    const int question_start_x =        0;
+
+    screen->question_window = create_newwin(question_height, question_width,
+                                            question_start_y, question_start_x);
+}
+
+void 
+ImageWindowInit(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
+
+    const int columns = screen->columns;
+    const int rows = screen->rows;
+
+    const int image_width   = (int) (0.5 * columns);
+    const int image_heigth  = (int) (0.5 * rows);
+    const int image_start_x = (int) (0.65 * columns);
+    const int image_start_y = (int) (0.05 * rows); 
+    
+    screen->img_window = create_newwin(image_heigth, image_width,
+                                       image_start_y, image_start_x);
+}
+
+void 
+ScanWindowInit(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
+
+    const int columns = screen->columns;
+    const int rows = screen->rows;
+
+    const int scan_width   = (int) (0.6 * columns);
+    const int scan_heigth  = (int) (5);
+    const int scan_start_x = (int) (0.0 * columns);
+    const int scan_start_y = (int) (0.3 * rows); 
+
+    WINDOW* scan_win = create_newwin(scan_heigth, scan_width,
+                                     scan_start_y, scan_start_x);
+}
+
+void DestroyWindow(WINDOW *local_win) {
+    wclear(local_win);
+    wrefresh(local_win);
+    delwin(local_win);
+}
+
+// ============================================================================
 
 void 
 ReadUserInput(WINDOW* window,  
@@ -107,6 +184,7 @@ ReadUserInput(WINDOW* window,
 
     noecho();
 }
+
 user_option_e
 ProvideChoice()
 {
@@ -173,7 +251,7 @@ ShowMessage(WINDOW*     window,
 
     const size_t delay = 100000;
 
-    const char* character_ask = "Pe'trovich says...";
+    const char* character_ask = "Pe'trovich asks if...";
 
     wclear(window);
     box(window, 0, 0);

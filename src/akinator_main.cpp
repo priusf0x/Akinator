@@ -1,5 +1,7 @@
 #include "akinator.h"
 
+#include "tree.h"
+
 int
 main()
 {
@@ -13,11 +15,9 @@ main()
         return output;
     }
 
-    // printf("%s", akinator->input_buffer);
-
     TreeDump(akinator->object_tree);
     TreeBaseDump(akinator->object_tree, stdout);
-    // state machine 
+    // // state machine 
     AkinatorDestroy(&akinator);
     // Start State Machine 
 
