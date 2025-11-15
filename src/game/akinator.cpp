@@ -6,6 +6,7 @@
 
 #include "Assert.h"
 #include "tree.h"
+#include "my_allocator.h"
 
 static akinator_return_e ReadFileData(akinator_t akinator, const char* file_name);
 
@@ -46,18 +47,10 @@ AkinatorInit(akinator_t*  akinator,
 // test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted 
 
     const size_t max_buffer_count = 1024;
-    (*akinator)->add_buffer = (char*) calloc(max_buffer_count, sizeof(char));
-    
-    if ((*akinator)->add_buffer == NULL)
+    if (FallosateInit(&(*akinator)->memory, max_buffer_count) != 0)
     {
-        TreeDestroy((*akinator)->object_tree);
-        free((*akinator)->input_buffer);
-        free(*akinator);
-
         return AKINATOR_RETURN_ALLOCATION_ERROR;
     }
-
-    (*akinator)->free = 0;
 
 // test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted
 
@@ -75,7 +68,6 @@ AkinatorDestroy(akinator_t* akinator)
 {
     TreeDestroy((*akinator)->object_tree);
     free((*akinator)->input_buffer);
-    free((*akinator)->add_buffer);
     free((*akinator));
     akinator = NULL;
 

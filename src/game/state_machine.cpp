@@ -124,11 +124,14 @@ AskUser(visualisation_context* screen,
 static void 
 AddNewElement(akinator_t akinator)
 {
+    ASSERT_AKINATOR(akinator);
+
+
     // read new element 
 
     // read the difference between the elements
     
     // add the difference 
 
-    // add the 
+    // add new element
 }

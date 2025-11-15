@@ -4,6 +4,7 @@
 #include "tree.h"
 #include "my_string.h"
 #include "Assert.h"
+#include "my_allocator.h"
 
 enum akinator_return_e
 {
@@ -19,10 +20,9 @@ enum akinator_return_e
 
 struct akinator_s
 {
-    tree_t object_tree;
-    char*  input_buffer;
-    char*  add_buffer;
-    size_t free;
+    tree_t             object_tree;
+    char*              input_buffer;
+    fallosate_memory_t memory;
 };
 
 typedef akinator_s* akinator_t;
@@ -38,6 +38,6 @@ akinator_return_e StartAkinatorGame(akinator_t akinator);
 
 // =============================== ASSERT_AKINATOR ============================
 
-#define ASSERT_AKINATOR(X) do { ASSERT((X)->object_tree != NULL); ASSERT((X)->input_buffer != NULL); ASSERT((X)->add_buffer);} while(0);
+#define ASSERT_AKINATOR(X) do {ASSERT((X)); ASSERT((X)->object_tree != NULL); ASSERT((X)->input_buffer != NULL); ASSERT((X)->memory != NULL);} while(0);
 
 #endif // AKINATOR_H
