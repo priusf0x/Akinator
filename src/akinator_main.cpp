@@ -21,9 +21,7 @@ main()
 
     StartStateMachine(akinator);
     
-    // Destroy Akinator 
     AkinatorDestroy(&akinator);
-    endwin();
 
     return 0;
 } 

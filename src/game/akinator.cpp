@@ -47,7 +47,7 @@ AkinatorInit(akinator_t*  akinator,
 // test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted 
 
     const size_t max_buffer_count = 1024;
-    if (FallosateInit(&(*akinator)->memory, max_buffer_count) != 0)
+    if (FallocateInit(&(*akinator)->memory, max_buffer_count) != 0)
     {
         return AKINATOR_RETURN_ALLOCATION_ERROR;
     }
@@ -68,6 +68,7 @@ AkinatorDestroy(akinator_t* akinator)
 {
     TreeDestroy((*akinator)->object_tree);
     free((*akinator)->input_buffer);
+    FallocateDestroy(&(*akinator)->memory);
     free((*akinator));
     akinator = NULL;
 

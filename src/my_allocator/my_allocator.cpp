@@ -7,7 +7,7 @@
 #include "Assert.h"
 
 fallosate_return_e 
-FallosateInit(fallosate_memory_t* memory_block, 
+FallocateInit(fallosate_memory_t* memory_block, 
               size_t              start_size)
 {
     ASSERT(memory_block != NULL);
@@ -35,13 +35,13 @@ FallosateInit(fallosate_memory_t* memory_block,
 
 
 fallosate_return_e 
-FallosateDestroy(fallosate_memory_t* memory_block)
+FallocateDestroy(fallosate_memory_t* memory_block)
 {
     if ((memory_block != NULL) && (*memory_block) != NULL)
     {
         free((*memory_block)->fallosate_pointer);
         free((*memory_block));
-        memset(*memory_block, 0, sizeof(fallosate_memory_s));
+        *memory_block = NULL;
     }
 
     return FALLOSATE_RETURN_SUCCESS;
@@ -49,9 +49,9 @@ FallosateDestroy(fallosate_memory_t* memory_block)
 
 
 void* 
-fallosator(size_t elements_count, 
-           size_t element_size, 
-           fallosate_memory_t memory_block)
+falloc(size_t elements_count, 
+       size_t element_size, 
+       fallosate_memory_t memory_block)
 {
     ASSERT(memory_block != NULL);
     ASSERT(memory_block->fallosate_pointer != NULL);

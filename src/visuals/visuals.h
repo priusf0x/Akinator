@@ -30,13 +30,13 @@ void ScreenContextDestroy(visualisation_context* screen);
 void ImageWindowInit(visualisation_context* screen);
 void QuestionWindowInit(visualisation_context* screen);
 void ScanWindowInit(visualisation_context* screen);
-void DestroyWindow(WINDOW *local_win);
+void DestroyWindow(WINDOW** local_win);
 
 // ============================= SHOW_SCREEN ==================================
 
-void ShowMessage(visualisation_context* screen, const char* message, size_t message_length);
+void          ShowMessage(visualisation_context* screen, const char* message, size_t message_length);
 user_option_e GiveChoice();
-void ShowAkinator(visualisation_context* screen);
-
+void          ShowAkinator(visualisation_context* screen);
+void          ScanUserInput(visualisation_context* screen, char* string, size_t  max_string_count);
 
 #endif // VISAULS_H

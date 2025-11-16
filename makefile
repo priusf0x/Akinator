@@ -1,4 +1,4 @@
-SOURCES = akinator_main.cpp common/simple_parser.cpp tree/tree.cpp stack/stack.cpp common/tools.cpp tree/tree_dump.cpp visuals/visuals.cpp game/state_machine.cpp game/akinator.cpp common/my_string.cpp my_allocator/my_allocator.cpp
+SOURCES = akinator_main.cpp common/simple_parser.cpp tree/tree.cpp stack/stack.cpp common/tools.cpp tree/tree_dump.cpp visuals/visuals.cpp game/state_machine.cpp game/akinator.cpp common/my_string.cpp my_allocator/my_allocator.cpp game/stack_machine_functions.cpp
 
 OBJ_DIR = obj
 SOURCE_DIR = src

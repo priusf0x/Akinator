@@ -54,7 +54,7 @@ static WINDOW *create_newwin(int height, int width, int starty, int startx) {
 }
 
 static void PrintASCIImage(WINDOW* window, const char* asci_image);
-void ReadUserInput(WINDOW* window, char* string, size_t max_string_count);
+void ScanUserInput(WINDOW* window, char* string, size_t max_string_count);
 
 // ========================== MEMORY_CONTROLLING ==============================
 
@@ -72,11 +72,24 @@ ScreenContextInit(visualisation_context* screen)
 void 
 ScreenContextDestroy(visualisation_context* screen)
 {
-    ASSERT(screen != NULL);
+    if (screen == NULL)
+    {
+        return;
+    }
 
-    DestroyWindow(screen->img_window);  
-    DestroyWindow(screen->question_window);
-    DestroyWindow(screen->scan_window);
+    if (screen->img_window != NULL)
+    {
+        DestroyWindow(&screen->img_window); 
+    }
+    if (screen->question_window != NULL)
+    { 
+        DestroyWindow(&screen->question_window);
+    }
+    if (screen->scan_window != NULL)
+    {   
+        DestroyWindow(&screen->scan_window);
+    }
+
     *screen = {};
 
     endwin();
@@ -135,25 +148,32 @@ ScanWindowInit(visualisation_context* screen)
                                      scan_start_y, scan_start_x);
 }
 
-void DestroyWindow(WINDOW *local_win) {
-    wclear(local_win);
-    wrefresh(local_win);
-    delwin(local_win);
+void DestroyWindow(WINDOW** local_win) {
+    ASSERT(local_win != NULL);
+
+    if (*local_win != NULL)
+    {
+        wclear(*local_win);
+        wrefresh(*local_win);
+        delwin(*local_win);
+        *local_win = NULL;
+    }
 }
 
 // ============================================================================
 
 void 
-ReadUserInput(WINDOW* window,  
-              char*   string,
-              size_t  max_string_count)
+ScanUserInput(visualisation_context* screen,  
+              char*                  string,
+              size_t                 max_string_count)
 {
-    ASSERT(window != NULL);
+    ASSERT(screen != NULL);
+    ASSERT(screen->scan_window != NULL);
     ASSERT(string != NULL);
 
     echo();
-    mvwprintw(window, 1, 2, "Your input:");
-    mvwgetnstr(window, 3, 2, string, max_string_count);
+    mvwprintw(screen->scan_window, 1, 2, "Your input:");
+    mvwgetnstr(screen->scan_window, 3, 2, string, max_string_count);
     noecho();
 }
 
