@@ -39,6 +39,10 @@ akinator_return_e AkinatorDestroy(akinator_t* akinator);
 
 akinator_return_e StartAkinatorGame(akinator_t akinator);
 
+// ============================== WRITE_DATA_IN_FILES =========================
+
+akinator_return_e WriteAllData(akinator_t akinator, const char* base_file_name);
+
 // =============================== ASSERT_AKINATOR ============================
 
 #define ASSERT_AKINATOR(X) do {ASSERT((X)); ASSERT((X)->object_tree != NULL); ASSERT((X)->input_buffer != NULL); ASSERT((X)->memory != NULL);} while(0);

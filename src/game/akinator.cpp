@@ -158,7 +158,7 @@ WriteAllData(akinator_t  akinator,
 
     if (base_file == NULL)
     {
-        return AKINATOR_RETURN_FILE_OPEN_ERROR
+        return AKINATOR_RETURN_FILE_OPEN_ERROR;
     }
 
     TreeBaseDump(akinator->object_tree, base_file);
@@ -170,7 +170,6 @@ WriteAllData(akinator_t  akinator,
 
     return AKINATOR_RETURN_SUCCESS;
 }
-
 
 // =========================== RECURSION_ALGORITHM ============================
 

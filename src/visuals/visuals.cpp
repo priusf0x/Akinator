@@ -182,7 +182,7 @@ GiveChoice()
 {
     noecho();
 
-    int user_input = getch();
+    int user_input = 0;
     user_option_e current_state = USER_OPTION_YES;
 
     int yes_button_position_x = (int) (0.1 * getmaxx(stdscr));
@@ -192,6 +192,8 @@ GiveChoice()
 
     do
     {
+        user_input = getch();
+
         refresh();
         switch(user_input)
         {
@@ -208,10 +210,10 @@ GiveChoice()
             case 'd':
                 current_state = USER_OPTION_NO;
                 mvprintw(yes_button_position_y, yes_button_position_x,
-                    "YES");
+                         "YES");
                 attron(A_STANDOUT);
                 mvprintw(no_button_position_y, no_button_position_x,
-                    "NO");
+                         "NO");
                 attroff(A_STANDOUT);
                 break;
 
@@ -221,9 +223,7 @@ GiveChoice()
             default: break;
         }
         refresh();
-        user_input = getch();
-
-    } while (user_input != 'q' && user_input != '\n');
+    } while ((user_input != 'q') && (user_input != '\n'));
 
     mvprintw(yes_button_position_y, yes_button_position_x, "   ");
     mvprintw(no_button_position_y, no_button_position_x, "   ");
@@ -245,7 +245,7 @@ ShowMessage(visualisation_context* screen,
     WINDOW* question_window = screen->question_window;
 
     srand((unsigned int) time(NULL));
-    const unsigned int max_delay = 200000;
+    const unsigned int max_delay = 150000;
 
     const char* character_ask = "Pe'trovich asks if...";
 
