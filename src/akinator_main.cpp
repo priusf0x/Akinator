@@ -2,26 +2,36 @@
 
 #include "tree.h"
 #include "state_machine.h"
+#include "simple_parser.h"
+
+static const char* base_file_name = "base_file.zov";
 
 int
-main()
+main(int   argc, 
+     argv *argv[])
 {
     akinator_t akinator = NULL;
+    int error_identifier = 0;
 
-    akinator_return_e output = AKINATOR_RETURN_SUCCESS;
-
-    if ((output = AkinatorInit(&akinator, "input_file.zov")) != 0)
+    if ((error_identifier = ReadFlags(argc, argv, &base_file_name)) != 0)
     {
-        fprintf(stderr, "%d error was occupied.\n", output);
-        return output;
+        fprintf(stderr, "%d error was occupied in reading flags.\n",
+                 error_identifier);
+        return error_identifier;
     }
 
-    TreeDump(akinator->object_tree);
+    if ((error_identifier = AkinatorInit(&akinator, base_file_name)) != 0)
+    {
+        fprintf(stderr, "%d error was occupied in initialization.\n", error_identifier);
+        return output;
+    }
     
-    StartStateMachine(akinator);
+    if ((error_identifier = StartStateMachine(akinator)) !=  0)
+    {
+        fprintf(stderr, "%d error was occupied in game.");
+    }
     
     TreeBaseDump(akinator->object_tree, stderr);
-    AkinatorDestroy(&akinator);
 
     return 0;
 } 

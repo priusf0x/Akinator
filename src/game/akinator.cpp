@@ -52,6 +52,7 @@ AkinatorInit(akinator_t*  akinator,
         free((*akinator)->input_buffer);
         TreeDestroy((*akinator)->object_tree);
         free(*akinator);
+
         return AKINATOR_RETURN_ALLOCATION_ERROR;
     }
 
@@ -142,13 +143,41 @@ ReadFileData(akinator_t  akinator,
 
     return AKINATOR_RETURN_SUCCESS;
 }
+// ============================== SAVE_IN_FILE ================================
+
+akinator_return_e
+WriteAllData(akinator_t  akinator,
+             const char* base_file_name)
+{
+    ASSERT(akinator != NULL);
+    ASSERT(base_file_name != NULL);
+
+    TreeDump(akinator->object_tree);
+
+    FILE* base_file = fopen(base_file_name, "w");
+
+    if (base_file == NULL)
+    {
+        return AKINATOR_RETURN_FILE_OPEN_ERROR
+    }
+
+    TreeBaseDump(akinator->object_tree, base_file);
+
+    if (fclose(base_file) != 0)
+    {
+        return AKINATOR_RETURN_FILE_CLOSE_ERROR;
+    }
+
+    return AKINATOR_RETURN_SUCCESS;
+}
+
 
 // =========================== RECURSION_ALGORITHM ============================
 
 
 static recursion_return_e 
 ReadNode(akinator_t akinator,
-         size_t*    curren_position,
+         size_t*    current_position,
          size_t     root_position,
          edge_dir_e node_position);
 

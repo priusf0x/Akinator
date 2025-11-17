@@ -4,12 +4,12 @@
 enum read_flags_return_e
 {
     READ_FLAGS_RETURN_SUCCESS,
-    READ_FLAGS_RETURN_ERROR
+    READ_FLAGS_RETURN_TOO_FEW_ARGS,
+    READ_FLAGS_RETURN_TOO_MANY_ARGS
 };
 
-enum read_flags_return_e ReadFlags(int                argc,
-                                   const char* const* argv,
-                                   const char** input_file,
-                                   const char** output_file);
+ReadFlags(int                argc,
+          const char* const* argv,
+          const char**       base_file);
 
 #endif
