@@ -12,8 +12,8 @@ static akinator_return_e ReadFileData(akinator_t akinator, const char* file_name
 
 
 static recursion_return_e RecursiveParser(akinator_t akinator, 
-                                         size_t*    current_position, 
-                                         size_t     root_position);
+                                          size_t*    current_position, 
+                                          size_t     root_position);
 
 akinator_return_e
 AkinatorInit(akinator_t*  akinator,
@@ -44,20 +44,38 @@ AkinatorInit(akinator_t*  akinator,
         return output;
     }
 
-// test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted 
+// test_version test_version test_version 
 
     const size_t max_buffer_count = 1024;
     if (FallocateInit(&(*akinator)->memory, max_buffer_count) != 0)
     {
+        free((*akinator)->input_buffer);
+        TreeDestroy((*akinator)->object_tree);
+        free(*akinator);
         return AKINATOR_RETURN_ALLOCATION_ERROR;
     }
 
-// test_version_will_be_deleted test_version_will_be_deleted test_version_will_be_deleted
+// test_version test_version test_version
 
     size_t current_position = 0;
     if (RecursiveParser(*akinator, &current_position, 0) != 0)
     {
+        free((*akinator)->input_buffer);
+        TreeDestroy((*akinator)->object_tree);
+        FallocateDestroy(&(*akinator)->memory);
+        free(*akinator);
+
         return AKINATOR_RETURN_READ_ERROR;
+    }
+
+    if ((*akinator)->object_tree->nodes_array[0].left_index == NO_LINK)
+    {
+        free((*akinator)->input_buffer);
+        TreeDestroy((*akinator)->object_tree);
+        FallocateDestroy(&(*akinator)->memory);
+        free(*akinator);
+
+        return AKINATOR_RETURN_ADD_OBJECT_ERROR;
     }
 
     return AKINATOR_RETURN_SUCCESS;

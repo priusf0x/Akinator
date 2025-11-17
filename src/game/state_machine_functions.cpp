@@ -72,6 +72,65 @@ AskUser(visualisation_context* screen,
 // ============================ PROGRAM_STATE_GUESSED =========================
 
 program_state_e 
+AskIfGuessed(visualisation_context* screen,
+             akinator_t             akinator,
+             size_t                 previous_node)
+{
+    ASSERT(screen != NULL);
+    ASSERT_AKINATOR(akinator);
+
+    ImageWindowInit(screen);
+    QuestionWindowInit(screen);
+
+    ShowAkinator(screen);
+
+    const char* suggestion_template = "%.*s is your object.";
+    const size_t comment_buffer_size = 300;
+    char add_object_suggestion[comment_buffer_size] = {};
+
+    string_s previous_object = akinator->object_tree->nodes_array[previous_node].node_value;
+
+    snprintf(add_object_suggestion, comment_buffer_size, suggestion_template, 
+             previous_object.string_size, previous_object.string_source);
+
+    ShowMessage(screen, add_object_suggestion, strlen(add_object_suggestion));
+
+    program_state_e next_state = PROGRAM_STATE_ERROR;
+    user_option_e user_option = GiveChoice();
+
+    switch(user_option)
+    {
+        case USER_OPTION_YES:
+            next_state = PROGRAM_STATE_QUIT;
+            break;
+        
+        case USER_OPTION_NO:
+            next_state = PROGRAM_STATE_ADD;
+            break;
+
+        case USER_OPTION_EXIT:
+            next_state = PROGRAM_STATE_QUIT;
+            break;
+
+        default: break;
+    }
+
+    DestroyWindow(&screen->question_window);
+    DestroyWindow(&screen->img_window);
+
+    return next_state;
+}
+
+// ============================ PROGRAM_STATE_ADD =============================
+
+
+static akinator_return_e
+AddObjectInGame(akinator_t       akinator,
+                size_t           current_node,
+                const string_s*  question_string,
+                const string_s*  object_string);
+
+program_state_e 
 AddNewElement(visualisation_context* screen,
               akinator_t             akinator,
               size_t                 previous_node)
@@ -89,6 +148,8 @@ AddNewElement(visualisation_context* screen,
     
     if ((object == NULL) || (question == NULL))
     {
+        akinator->akinator_error = AKINATOR_RETURN_ALLOCATION_ERROR;
+
         return PROGRAM_STATE_ERROR;
     }
    
@@ -120,26 +181,78 @@ AddNewElement(visualisation_context* screen,
     ScanWindowInit(screen);
     ScanUserInput(screen, object, max_buffer_count);
     string_s object_string = {.string_source = object, .string_size = strlen(object)};
+    DestroyWindow(&screen->scan_window);
 
 // =========================== Ask new question ===============================
 
-    const char* question_comment_template = "you could name the difference between %s and %.*s.\n"
-                                            "(Example: It (new_object) studies in MIPT"; 
+    const char* question_comment_template = "you could name the difference between %s and %.*s."
+                                            "(Example: It (new_object) studies in MIPT)"; 
 
-    const size_t commment_buffer_size = 300;
-    char question_comment[commment_buffer_size] = {};
+    const size_t comment_buffer_size = 300;
+    char question_comment[comment_buffer_size] = {};
 
     string_s previous_object = akinator->object_tree->nodes_array[previous_node].node_value;
 
-    snprintf(question_comment, commment_buffer_size, question_comment_template, 
+    snprintf(question_comment, comment_buffer_size, question_comment_template, 
              object, previous_object.string_size, previous_object.string_source);
 
     ShowMessage(screen, question_comment, strlen(question_comment));
 
+    ScanWindowInit(screen);
     ScanUserInput(screen, question, max_buffer_count);
+    DestroyWindow(&screen->scan_window);
 
-    string_s question_string = {.string_source = question, .string_size = strlen(question)};
+    string_s question_string = {.string_source = question, 
+                                .string_size = strlen(question)};
 
 // ============================== Adding nodes ================================
+    
+    if (AddObjectInGame(akinator, previous_node, 
+                        &question_string, &object_string) != 0)
+    {
+        akinator->akinator_error = AKINATOR_RETURN_ADD_OBJECT_ERROR;
 
+        return PROGRAM_STATE_ERROR;
+    } 
+
+    return PROGRAM_STATE_QUIT;
 }
+
+static akinator_return_e
+AddObjectInGame(akinator_t       akinator,
+                size_t           previous_node,
+                const string_s*  question_string,
+                const string_s*  object_string)
+{
+    ASSERT_AKINATOR(akinator);
+    ASSERT(question_string != NULL);
+    ASSERT(object_string != NULL);
+
+
+    node_s question_node = {.parent_index = akinator->object_tree
+                                ->nodes_array[previous_node].parent_index,
+                            .parent_connection = akinator->object_tree
+                                ->nodes_array[previous_node].parent_connection,
+                            .right_index = NO_LINK,
+                            .left_index = (ssize_t) previous_node,
+                            .node_value = *question_string};
+
+    if (TreeAddNode(akinator->object_tree, &question_node) != 0)
+    {
+        return AKINATOR_RETURN_ADD_OBJECT_ERROR;
+    }
+
+    node_s object_node = {.parent_index = (ssize_t) question_node.index_in_tree,
+                          .parent_connection = EDGE_DIR_RIGHT,
+                          .right_index = NO_LINK,
+                          .left_index = NO_LINK,
+                          .node_value = *object_string};
+                    
+    if (TreeAddNode(akinator->object_tree, &object_node) != 0)
+    {
+        return AKINATOR_RETURN_ADD_OBJECT_ERROR;
+    }
+
+    return AKINATOR_RETURN_SUCCESS;
+}
+                

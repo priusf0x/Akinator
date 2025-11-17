@@ -15,7 +15,9 @@ enum akinator_return_e
     AKINATOR_RETURN_FILE_OPEN_ERROR,
     AKINATOR_RETURN_FILE_CLOSE_ERROR,
     AKINATOR_RETURN_EMPTY_FILE,
-    AKINATOR_RETURN_READ_ERROR
+    AKINATOR_RETURN_READ_ERROR,
+    AKINATOR_RETURN_ADD_OBJECT_ERROR,
+    AKINATOR_RETURN_EMPTY_BASE
 };
 
 struct akinator_s
@@ -23,6 +25,7 @@ struct akinator_s
     tree_t             object_tree;
     char*              input_buffer;
     fallosate_memory_t memory;
+    akinator_return_e  akinator_error;
 };
 
 typedef akinator_s* akinator_t;

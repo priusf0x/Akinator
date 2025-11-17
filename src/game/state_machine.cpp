@@ -8,8 +8,9 @@
 #include "akinator.h"
 #include "visuals.h"
 #include "my_string.h"
+#include "state_machine_functions.h"
  
-program_state_e
+akinator_return_e
 StartStateMachine(akinator_t akinator)
 {
     ASSERT(akinator != NULL);
@@ -18,6 +19,7 @@ StartStateMachine(akinator_t akinator)
     ScreenContextInit(&screen);
 
     program_state_e current_state = PROGRAM_STATE_MENU;
+    akinator_return_e output = AKINATOR_RETURN_SUCCESS;
 
     size_t current_node = (size_t) akinator->object_tree->nodes_array[0].left_index;
 
@@ -35,22 +37,18 @@ StartStateMachine(akinator_t akinator)
                 break;   
 
             case PROGRAM_STATE_QUIT:
-                TreeBaseDump(akinator->object_tree, stdout);
                 break;
 
             case PROGRAM_STATE_GUESSED:
-                current_state = PROGRAM_STATE_QUIT;
-                AddNewElement(&screen, akinator, current_node);
+                current_state = AskIfGuessed(&screen, akinator, current_node);
                 break;
 
             case PROGRAM_STATE_ADD:
-                // test_mode test_mode test_mode
-                printf("PROGRAM STATE ADD");
-                current_state = PROGRAM_STATE_QUIT;
+                current_state = AddNewElement(&screen, akinator, current_node);
                 break;
 
             case PROGRAM_STATE_ERROR:
-                // test_mode test_mode test_mode 
+                output = akinator->akinator_error;
                 break;
 
             default: 
@@ -61,7 +59,7 @@ StartStateMachine(akinator_t akinator)
 
     ScreenContextDestroy(&screen);
 
-    return PROGRAM_STATE_QUIT;
+    return output;
 }
 
 

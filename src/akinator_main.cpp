@@ -17,10 +17,10 @@ main()
     }
 
     TreeDump(akinator->object_tree);
-    TreeBaseDump(akinator->object_tree, stderr);
-
+    
     StartStateMachine(akinator);
     
+    TreeBaseDump(akinator->object_tree, stderr);
     AkinatorDestroy(&akinator);
 
     return 0;

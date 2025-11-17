@@ -43,6 +43,7 @@ TreeBaseDump(const tree_t tree,
 
     if (tree->nodes_count == 0)
     {
+        StackDestroy(bypass_stack);
         return TREE_RETURN_EMPTY_TREE;
     }
 
@@ -152,6 +153,9 @@ static void
 PrintHTMLHeader(FILE*       log_file,
                 const char* current_time)
 {
+    ASSERT(log_file != NULL);
+    ASSERT(current_time != NULL);
+
     fprintf(log_file, "<html>\n"
                         "<style>"
                         "body{background-color: rgb(48, 48, 48);}"

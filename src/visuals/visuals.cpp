@@ -2,7 +2,10 @@
 
 #include <ncurses.h>   
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 
 #include "Assert.h"
 
@@ -52,9 +55,6 @@ static WINDOW *create_newwin(int height, int width, int starty, int startx) {
     
     return local_win;
 }
-
-static void PrintASCIImage(WINDOW* window, const char* asci_image);
-void ScanUserInput(WINDOW* window, char* string, size_t max_string_count);
 
 // ========================== MEMORY_CONTROLLING ==============================
 
@@ -140,7 +140,7 @@ ScanWindowInit(visualisation_context* screen)
     const int rows = screen->rows;
 
     const int scan_width   = (int) (0.6 * columns);
-    const int scan_heigth  = (int) (5);
+    const int scan_heigth  =        5;
     const int scan_start_x = (int) (0.0 * columns);
     const int scan_start_y = (int) (0.3 * rows); 
 
@@ -173,7 +173,7 @@ ScanUserInput(visualisation_context* screen,
 
     echo();
     mvwprintw(screen->scan_window, 1, 2, "Your input:");
-    mvwgetnstr(screen->scan_window, 3, 2, string, max_string_count);
+    mvwgetnstr(screen->scan_window, 3, 2, string, (int) max_string_count);
     noecho();
 }
 
@@ -244,7 +244,8 @@ ShowMessage(visualisation_context* screen,
 
     WINDOW* question_window = screen->question_window;
 
-    const size_t delay = 100000;
+    srand((unsigned int) time(NULL));
+    const unsigned int max_delay = 200000;
 
     const char* character_ask = "Pe'trovich asks if...";
 
@@ -257,10 +258,11 @@ ShowMessage(visualisation_context* screen,
 
     wattron(question_window, A_ITALIC);
     wmove(question_window, 2, 2);
-    for (size_t letter_num = 0; letter_num < message_length; letter_num++)
+    for (size_t letter_num = 0; (letter_num < message_length) 
+         && (message[letter_num] != 0) ; letter_num++)
     {
         waddch(question_window, (unsigned char) message[letter_num]);
-        usleep(delay);
+        usleep((__useconds_t)random() % max_delay);
         wrefresh(question_window);
     }
     wattroff(question_window, A_ITALIC);
