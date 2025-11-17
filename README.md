@@ -1,2 +1,2 @@
-***AKINATOR
+## AKINATOR
 In process...
