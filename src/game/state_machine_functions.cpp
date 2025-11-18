@@ -48,12 +48,12 @@ AskUser(visualisation_context* screen,
     {
         case USER_OPTION_YES:
             *current_node = (size_t) positive_answer_node; 
-            next_state = PROGRAM_STATE_ASK;
+            next_state = PROGRAM_STATE_GUESS_ASK;
             break;
 
         case USER_OPTION_NO:
             *current_node = (size_t) negative_answer_node;
-            next_state = PROGRAM_STATE_ASK;
+            next_state = PROGRAM_STATE_GUESS_ASK;
             break;
 
         case USER_OPTION_EXIT:
@@ -254,5 +254,35 @@ AddObjectInGame(akinator_t       akinator,
     }
 
     return AKINATOR_RETURN_SUCCESS;
+}
+
+// ============================= PROGRAM_STATE_MENU ===========================
+
+program_state_e 
+AskUserMode()
+{
+    mode_menu_e user_option = ShowMenu();
+    program_state_e next_state = PROGRAM_STATE_ERROR; 
+
+    switch(user_option)
+    {
+        case MODE_MENU_GUESS:
+            next_state = PROGRAM_STATE_GUESS_ASK;
+            break;
+    
+        case MODE_MENU_DEFINITION:
+            next_state = PROGRAM_STATE_DEFINITION;
+            break;
+
+        case MODE_MENU_COMPARE:
+            next_state = PROGRAM_STATE_COMPARE;
+            break;
+
+        case MODE_MENU_QUIT:
+            next_state = PROGRAM_STATE_QUIT;
+            break;
+    }
+
+    return next_state;
 }
                 

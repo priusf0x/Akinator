@@ -13,7 +13,7 @@
 akinator_return_e
 StartStateMachine(akinator_t akinator)
 {
-    ASSERT(akinator != NULL);
+    ASSERT_AKINATOR(akinator);
 
     visualisation_context screen = {};
     ScreenContextInit(&screen);
@@ -28,11 +28,18 @@ StartStateMachine(akinator_t akinator)
         switch(current_state)
         {
             case PROGRAM_STATE_MENU:
-                current_state = PROGRAM_STATE_ASK; 
-                // test_mode test_mode test_mode 
-                break;     
+                current_state = AskUserMode();
+                break;  
+                
+            case PROGRAM_STATE_DEFINITION:
+                current_state = PROGRAM_STATE_QUIT;
+                break;
 
-            case PROGRAM_STATE_ASK:
+            case PROGRAM_STATE_COMPARE:
+                current_state = PROGRAM_STATE_QUIT;
+                break;
+
+            case PROGRAM_STATE_GUESS_ASK:
                 current_state = AskUser(&screen, akinator, &current_node);
                 break;   
 

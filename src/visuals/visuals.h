@@ -20,6 +20,14 @@ struct visualisation_context
     int     columns;
 };
 
+enum mode_menu_e 
+{
+    MODE_MENU_GUESS = 0,
+    MODE_MENU_DEFINITION = 1,
+    MODE_MENU_COMPARE = 2,
+    MODE_MENU_QUIT = 3
+};
+
 // ======================== SCREEN_VISUALISATION_FUNCTIONS ====================
 
 void ScreenContextInit(visualisation_context* screen);
@@ -32,11 +40,12 @@ void QuestionWindowInit(visualisation_context* screen);
 void ScanWindowInit(visualisation_context* screen);
 void DestroyWindow(WINDOW** local_win);
 
-// ============================= SHOW_SCREEN ==================================
+// ============================= USER_INTERACTIONS ============================
 
-void          ShowMessage(visualisation_context* screen, const char* message, size_t message_length);
-user_option_e GiveChoice();
-void          ShowAkinator(visualisation_context* screen);
-void          ScanUserInput(visualisation_context* screen, char* string, size_t  max_string_count);
+void            ShowMessage(visualisation_context* screen, const char* message, size_t message_length);
+user_option_e   GiveChoice();
+void            ShowAkinator(visualisation_context* screen);
+void            ScanUserInput(visualisation_context* screen, char* string, size_t  max_string_count);
+mode_menu_e     ShowMenu();
 
 #endif // VISAULS_H
