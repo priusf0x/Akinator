@@ -281,6 +281,8 @@ AskUserMode()
         case MODE_MENU_QUIT:
             next_state = PROGRAM_STATE_QUIT;
             break;
+
+        default: break;
     }
 
     return next_state;

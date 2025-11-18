@@ -2,11 +2,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 
 #include "Assert.h"
 #include "tree.h"
 #include "my_allocator.h"
+#include "stack.h"
 
 static akinator_return_e ReadFileData(akinator_t akinator, const char* file_name);
 
@@ -173,7 +175,6 @@ WriteAllData(akinator_t  akinator,
 
 // =========================== RECURSION_ALGORITHM ============================
 
-
 static recursion_return_e 
 ReadNode(akinator_t akinator,
          size_t*    current_position,
@@ -255,4 +256,56 @@ ReadNode(akinator_t akinator,
     }
     
     return RECURSION_RETURN_SUCCESS;
+}
+
+// ================================ TREE_ALGORITHMS ===========================
+
+ssize_t 
+SearchObject(const akinator_t akinator,
+             const char*      object_name)
+{
+    ASSERT_AKINATOR(akinator);
+    ASSERT(object_name); 
+
+    node_s* node_array = akinator->object_tree->nodes_array;
+
+    for (ssize_t tree_index = 1; tree_index < (ssize_t) akinator->object_tree->nodes_capacity; 
+         tree_index++)
+    {
+        if (node_array[tree_index].parent_connection != EDGE_DIR_NO_DIRECTION)
+        {
+            if ((node_array[tree_index].node_value.string_size == strlen(object_name))
+                && (strncmp(object_name, node_array[tree_index].node_value.string_source,
+                 node_array[tree_index].node_value.string_size) == 0))
+            {
+                return tree_index;
+            }
+        }
+    }
+
+    return -1;
+}
+
+akinator_return_e
+PutPathIntoStack(akinator_t akinator,
+                 size_t     current_node,
+                 swag_t     path_stack)
+{
+    ASSERT_AKINATOR(akinator);
+    ASSERT(path_stack);
+
+    node_s* nodes_array = akinator->object_tree->nodes_array;
+    current_node = (size_t) nodes_array[current_node].parent_index;
+
+    while (current_node != 0)
+    {
+        if (StackPush(path_stack, current_node) != 0)
+        {
+            return AKINATOR_RETURN_STACK_ERROR;
+        }
+
+        current_node = (size_t) nodes_array[current_node].parent_index;
+    }  
+
+    return AKINATOR_RETURN_SUCCESS;
 }

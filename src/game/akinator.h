@@ -5,6 +5,7 @@
 #include "my_string.h"
 #include "Assert.h"
 #include "my_allocator.h"
+#include "stack.h"
 
 enum akinator_return_e
 {
@@ -17,7 +18,8 @@ enum akinator_return_e
     AKINATOR_RETURN_EMPTY_FILE,
     AKINATOR_RETURN_READ_ERROR,
     AKINATOR_RETURN_ADD_OBJECT_ERROR,
-    AKINATOR_RETURN_EMPTY_BASE
+    AKINATOR_RETURN_EMPTY_BASE,
+    AKINATOR_RETURN_STACK_ERROR
 };
 
 struct akinator_s
@@ -43,8 +45,16 @@ akinator_return_e StartAkinatorGame(akinator_t akinator);
 
 akinator_return_e WriteAllData(akinator_t akinator, const char* base_file_name);
 
+// =============================== TREE_ALGORITHMS ============================
+
+ssize_t SearchObject(const akinator_t akinator, const char* object_name);
+akinator_return_e PutPathIntoStack(akinator_t akinator, size_t current_node,
+                                   swag_t path_stack);
+
 // =============================== ASSERT_AKINATOR ============================
 
-#define ASSERT_AKINATOR(X) do {ASSERT((X)); ASSERT((X)->object_tree != NULL); ASSERT((X)->input_buffer != NULL); ASSERT((X)->memory != NULL);} while(0);
+#define ASSERT_AKINATOR(X) do {ASSERT((X)); ASSERT((X)->object_tree != NULL);\
+                                            ASSERT((X)->input_buffer != NULL);\
+                                            ASSERT((X)->memory != NULL);} while(0);
 
 #endif // AKINATOR_H
