@@ -46,7 +46,9 @@ R"(--------------------------------------------
 -------------.-+#########+----..---.........
 .........---..-##########+---..----.........)";       
 
-static WINDOW *create_newwin(int height, int width, int starty, int startx) {
+WINDOW*
+CreateWin(int height, int width, int starty, int startx)
+{
     WINDOW *local_win;
     local_win = newwin(height, width, starty, startx);
     box(local_win, 0, 0);
@@ -76,18 +78,13 @@ ScreenContextDestroy(visualisation_context* screen)
         return;
     }
 
-    if (screen->img_window != NULL)
-    {
-        DestroyWindow(&screen->img_window); 
-    }
-    if (screen->question_window != NULL)
-    { 
-        DestroyWindow(&screen->question_window);
-    }
-    if (screen->scan_window != NULL)
-    {   
-        DestroyWindow(&screen->scan_window);
-    }
+    DestroyWindow(&screen->img_window); 
+    DestroyWindow(&screen->question_window);
+    DestroyWindow(&screen->scan_window);
+
+    DestroySubwindow(&screen->subwindow_1);
+    DestroySubwindow(&screen->subwindow_2);
+    DestroySubwindow(&screen->subwindow_3);
 
     *screen = {};
 
@@ -101,16 +98,13 @@ QuestionWindowInit(visualisation_context* screen)
 {
     ASSERT(screen != NULL);
 
-    const int columns = screen->columns;
-    const int rows = screen->rows;
-
-    const int question_width   = (int) (0.6 * columns);
-    const int question_height  = (int) (0.2 * rows);
-    const int question_start_y = (int) (0.05 * rows);
+    const int question_width   = (int) (0.6 * screen->columns);
+    const int question_height  = (int) (0.2 * screen->rows);
+    const int question_start_y = (int) (0.05 * screen->rows);
     const int question_start_x =        0;
 
-    screen->question_window = create_newwin(question_height, question_width,
-                                            question_start_y, question_start_x);
+    screen->question_window = CreateWin(question_height, question_width,
+                                        question_start_y, question_start_x);
 }
 
 void 
@@ -118,16 +112,13 @@ ImageWindowInit(visualisation_context* screen)
 {
     ASSERT(screen != NULL);
 
-    const int columns = screen->columns;
-    const int rows = screen->rows;
-
-    const int image_width   = (int) (0.5 * columns);
-    const int image_heigth  = (int) (0.5 * rows);
-    const int image_start_x = (int) (0.65 * columns);
-    const int image_start_y = (int) (0.05 * rows); 
+    const int image_width   = (int) (0.5 * screen->columns);
+    const int image_heigth  = (int) (0.5 * screen->rows);
+    const int image_start_x = (int) (0.65 * screen->columns);
+    const int image_start_y = (int) (0.05 * screen->rows); 
     
-    screen->img_window = create_newwin(image_heigth, image_width,
-                                       image_start_y, image_start_x);
+    screen->img_window = CreateWin(image_heigth, image_width,
+                                   image_start_y, image_start_x);
 }
 
 void 
@@ -135,19 +126,72 @@ ScanWindowInit(visualisation_context* screen)
 {
     ASSERT(screen != NULL);
 
-    const int columns = screen->columns;
-    const int rows = screen->rows;
-
-    const int scan_width   = (int) (0.6 * columns);
+    const int scan_width   = (int) (0.6 * screen->columns);
     const int scan_heigth  =        5;
-    const int scan_start_x = (int) (0.0 * columns);
-    const int scan_start_y = (int) (0.3 * rows); 
+    const int scan_start_x = (int) (0.0 * screen->columns);
+    const int scan_start_y = (int) (0.3 * screen->rows); 
 
-    screen->scan_window = create_newwin(scan_heigth, scan_width,
-                                     scan_start_y, scan_start_x);
+    screen->scan_window = CreateWin(scan_heigth, scan_width,
+                                    scan_start_y, scan_start_x);
 }
 
-void DestroyWindow(WINDOW** local_win) {
+void 
+SubWindow1Init(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
+
+    const int subwindow_1_width = (int) (0.9 * screen->columns);
+    const int subwindow_1_height = (int) (0.1 * screen->rows);
+    const int subwindow_1_x = 5;
+    const int subwindow_1_y = 5;
+
+    screen->subwindow_1.window = CreateWin(subwindow_1_height, subwindow_1_width, 
+                                           subwindow_1_y, subwindow_1_x);  
+    screen->subwindow_1.cursor_x = 1;
+    screen->subwindow_1.cursor_y = 1;   
+    
+    wattron(screen->subwindow_1.window, A_REVERSE);
+}
+
+void 
+SubWindow2Init(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
+
+    const int subwindow_2_width = (int) (0.9 * screen->columns);
+    const int subwindow_2_height = (int) (0.3 * screen->rows);
+    const int subwindow_2_x = 5;
+    const int subwindow_2_y = (int) (0.3 * screen->rows);
+
+    screen->subwindow_2.window = CreateWin(subwindow_2_height, subwindow_2_width, 
+                                           subwindow_2_y, subwindow_2_x);  
+    screen->subwindow_2.cursor_x = 2;
+    screen->subwindow_2.cursor_y = 2;        
+    
+    wattron(screen->subwindow_2.window, A_ITALIC);
+}
+
+void 
+SubWindow3Init(visualisation_context* screen)
+{
+    ASSERT(screen != NULL);
+
+    const int subwindow_3_width = (int) (0.9 * screen->columns);
+    const int subwindow_3_height = (int) (0.3 * screen->rows);
+    const int subwindow_3_x = 5;
+    const int subwindow_3_y = (int) (0.7 * screen->rows);
+
+    screen->subwindow_3.window = CreateWin(subwindow_3_height, subwindow_3_width, 
+                                           subwindow_3_y, subwindow_3_x);  
+    screen->subwindow_3.cursor_x = 2;
+    screen->subwindow_3.cursor_y = 2;                                      
+    
+    wattron(screen->subwindow_3.window, A_ITALIC);
+}
+
+void 
+DestroyWindow(WINDOW** local_win) 
+{
     ASSERT(local_win != NULL);
 
     if (*local_win != NULL)
@@ -159,7 +203,35 @@ void DestroyWindow(WINDOW** local_win) {
     }
 }
 
+void 
+DestroySubwindow(subwindow_s* subwindow)
+{
+    ASSERT(subwindow != NULL);
+
+    DestroyWindow(&subwindow->window);
+    subwindow->cursor_x = 0;
+    subwindow->cursor_y = 0;
+}
+
 // ============================ USER_INTERACTIONS =============================
+
+void 
+AddTextToSubwindow(subwindow_s* subwindow,
+                   const char*  message,
+                   size_t       message_size)
+{
+    ASSERT(subwindow != NULL);
+    ASSERT(subwindow->window != NULL);
+    ASSERT(message != NULL);
+
+    mvwprintw(subwindow->window, subwindow->cursor_y,
+              subwindow->cursor_x, "%.*s", 
+              (int) message_size, message);
+    
+    subwindow->cursor_y++;
+
+    wrefresh(subwindow->window);
+}
 
 void 
 ScanUserInput(visualisation_context* screen,  
@@ -393,3 +465,5 @@ ShowMenu()
 
     return current_mode;
 }
+
+

@@ -30,8 +30,7 @@ main(const int   argc,
     if ((error_identifier = StartStateMachine(akinator)) !=  0)
     {
         AkinatorDestroy(&akinator);
-        fprintf(stderr, "%d error was occupied in game.", error_identifier);
-        
+        fprintf(stderr, "%d error was occupied in game.", error_identifier); 
         return error_identifier;
     }
     

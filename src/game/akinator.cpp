@@ -287,24 +287,28 @@ SearchObject(const akinator_t akinator,
 }
 
 akinator_return_e
-PutPathIntoStack(akinator_t akinator,
-                 size_t     current_node,
-                 swag_t     path_stack)
+PutPathIntoStack(const akinator_t akinator,
+                 ssize_t          current_node,
+                 swag_t           path_stack)
 {
     ASSERT_AKINATOR(akinator);
-    ASSERT(path_stack);
+    ASSERT(path_stack != NULL);
+
+    if ((current_node == 0) || (current_node == NO_LINK))
+    {
+        return AKINATOR_RETURN_VALUE_ERROR;
+    }
 
     node_s* nodes_array = akinator->object_tree->nodes_array;
-    current_node = (size_t) nodes_array[current_node].parent_index;
 
     while (current_node != 0)
     {
-        if (StackPush(path_stack, current_node) != 0)
+        if (StackPush(path_stack, (size_t) current_node) != 0)
         {
             return AKINATOR_RETURN_STACK_ERROR;
         }
 
-        current_node = (size_t) nodes_array[current_node].parent_index;
+        current_node = nodes_array[current_node].parent_index;
     }  
 
     return AKINATOR_RETURN_SUCCESS;

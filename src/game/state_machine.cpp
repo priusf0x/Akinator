@@ -32,11 +32,11 @@ StartStateMachine(akinator_t akinator)
                 break;  
                 
             case PROGRAM_STATE_DEFINITION:
-                current_state = PROGRAM_STATE_QUIT;
+                current_state = GiveObjectDefinition(akinator, &screen);    
                 break;
 
             case PROGRAM_STATE_COMPARE:
-                current_state = PROGRAM_STATE_QUIT;
+                current_state = CompareTwoObjects(akinator, &screen);
                 break;
 
             case PROGRAM_STATE_GUESS_ASK:
@@ -56,6 +56,7 @@ StartStateMachine(akinator_t akinator)
 
             case PROGRAM_STATE_ERROR:
                 output = akinator->akinator_error;
+                current_state = PROGRAM_STATE_MENU;
                 break;
 
             default: 
@@ -65,7 +66,7 @@ StartStateMachine(akinator_t akinator)
     } while (current_state != PROGRAM_STATE_QUIT);
 
     ScreenContextDestroy(&screen);
-
+    
     return output;
 }
 

@@ -287,4 +287,299 @@ AskUserMode()
 
     return next_state;
 }
-                
+         
+// ========================== PROGRAM_STATE_DEFINITION ========================
+
+static akinator_return_e
+ShowObjectDefinition(akinator_t             akinator, 
+                     visualisation_context* screen,
+                     swag_t                 path_stack);
+
+program_state_e
+GiveObjectDefinition(akinator_t             akinator,
+                     visualisation_context* screen)
+{
+    ASSERT_AKINATOR(akinator)
+
+    ScanWindowInit(screen);
+
+    const size_t buffer_capacity = 100;
+    char object_name[buffer_capacity] = {};
+
+    ScanUserInput(screen, object_name, buffer_capacity);
+
+    DestroyWindow(&screen->scan_window);
+
+    ssize_t defined_object_index = SearchObject(akinator, object_name);
+
+    if (defined_object_index == NO_LINK)
+    {
+        akinator->akinator_error = AKINATOR_RETURN_UNDEFINED_OBJECT;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    swag_t path_stack = NULL;
+    const size_t start_stack_size = 10;
+
+    if (StackInit(&path_stack, start_stack_size, "Path stack") != 0)
+    {
+        akinator->akinator_error = AKINATOR_RETURN_STACK_ERROR;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    if (PutPathIntoStack(akinator, defined_object_index,
+                         path_stack) != 0)
+    {
+        StackDestroy(path_stack);
+        akinator->akinator_error = AKINATOR_RETURN_PATH_ERROR;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    akinator_return_e return_value = AKINATOR_RETURN_SUCCESS;
+
+    if ((return_value = ShowObjectDefinition(akinator, screen, path_stack)) != 0)
+    {
+        StackDestroy(path_stack);
+        akinator->akinator_error = return_value;
+
+        return PROGRAM_STATE_ERROR; 
+    }
+
+    StackDestroy(path_stack);
+
+    return PROGRAM_STATE_MENU;
+}
+
+static akinator_return_e
+ShowObjectDefinition(akinator_t             akinator,
+                     visualisation_context* screen,
+                     swag_t                 path_stack)
+{
+    ASSERT_AKINATOR(akinator);
+    ASSERT(path_stack != NULL);
+    ASSERT(screen != NULL);
+
+    SubWindow1Init(screen);
+    SubWindow2Init(screen);
+    SubWindow3Init(screen);
+
+    size_t previous_node = 0;
+    size_t current_node = 0;
+
+    node_s* nodes_array = akinator->object_tree->nodes_array;
+
+    if (StackPop(path_stack, &current_node) != 0)
+    {
+        return AKINATOR_RETURN_STACK_ERROR;
+    }
+
+    do 
+    {
+        previous_node = current_node;
+        
+        if (StackPop(path_stack, &current_node) != 0)
+        {
+            return AKINATOR_RETURN_STACK_ERROR;
+        }
+
+        if (nodes_array[previous_node].right_index == (ssize_t) current_node)
+        {
+            AddTextToSubwindow(&screen->subwindow_2, 
+                               nodes_array[previous_node].node_value.string_source,
+                               nodes_array[previous_node].node_value.string_size);
+        }
+        else if (nodes_array[previous_node].left_index == (ssize_t) current_node)
+        {
+            AddTextToSubwindow(&screen->subwindow_3, 
+                               nodes_array[previous_node].node_value.string_source,
+                               nodes_array[previous_node].node_value.string_size);
+
+        }
+    } while (GetStackSize(path_stack) != 0);
+
+    AddTextToSubwindow(&screen->subwindow_1, 
+                       nodes_array[current_node].node_value.string_source,
+                       nodes_array[current_node].node_value.string_size);
+
+    while (getch() != 'q');
+
+    DestroySubwindow(&screen->subwindow_1);
+    DestroySubwindow(&screen->subwindow_2);
+    DestroySubwindow(&screen->subwindow_3);
+
+    return AKINATOR_RETURN_SUCCESS;
+}
+
+// ========================== PROGRAM_STATE_COMPARE ===========================
+
+
+static akinator_return_e 
+ShowComparison(akinator_t             akinator,
+               visualisation_context* screen,
+               swag_t                 path_stack_1,
+               swag_t                 path_stack_2);
+
+program_state_e
+CompareTwoObjects(akinator_t             akinator,
+                  visualisation_context* screen)
+{
+    ASSERT_AKINATOR(akinator);
+    ASSERT(screen != NULL);
+
+    const size_t start_stack_size = 10;
+    
+// ======================= FIRST_OBJECT_DEFINITION ============================
+
+    ScanWindowInit(screen);
+    
+    const size_t buffer_capacity = 100;
+    char object_name_1[buffer_capacity] = {};
+    ScanUserInput(screen, object_name_1, buffer_capacity);
+
+    DestroyWindow(&screen->scan_window);
+
+    ssize_t defined_object_index_1 = SearchObject(akinator, object_name_1);
+
+    if (defined_object_index_1 == NO_LINK)
+    {
+        akinator->akinator_error = AKINATOR_RETURN_UNDEFINED_OBJECT;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    swag_t path_stack_1 = NULL;
+
+    if (StackInit(&path_stack_1, start_stack_size, "Path stack") != 0)
+    {
+        akinator->akinator_error = AKINATOR_RETURN_STACK_ERROR;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    if (PutPathIntoStack(akinator, defined_object_index_1,
+                         path_stack_1) != 0)
+    {
+        StackDestroy(path_stack_1);
+        akinator->akinator_error = AKINATOR_RETURN_PATH_ERROR;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+// ====================== SECOND_OBJECT_DEFINITION ============================
+
+    ScanWindowInit(screen);
+
+    char object_name_2[buffer_capacity] = {};
+    ScanUserInput(screen, object_name_2, buffer_capacity);
+
+    DestroyWindow(&screen->scan_window);
+
+    ssize_t defined_object_index_2 = SearchObject(akinator, object_name_2);
+
+    if (defined_object_index_2 == NO_LINK)
+    {
+        StackDestroy(path_stack_1);
+
+        akinator->akinator_error = AKINATOR_RETURN_UNDEFINED_OBJECT;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    swag_t path_stack_2 = NULL;
+
+    if (StackInit(&path_stack_2, start_stack_size, "Path stack") != 0)
+    {
+        StackDestroy(path_stack_1);
+
+        akinator->akinator_error = AKINATOR_RETURN_STACK_ERROR;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    if (PutPathIntoStack(akinator, defined_object_index_2,
+                         path_stack_2) != 0)
+    {
+        StackDestroy(path_stack_1);
+        StackDestroy(path_stack_2);
+        akinator->akinator_error = AKINATOR_RETURN_PATH_ERROR;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+// ========================== COMPARATOR ======================================
+    
+    SubWindow2Init(screen);    
+
+    akinator_return_e return_value = AKINATOR_RETURN_SUCCESS;
+    if (ShowComparison(akinator, screen, path_stack_1, path_stack_2) != 0)
+    {
+        StackDestroy(path_stack_1);
+        StackDestroy(path_stack_2);
+
+        akinator->akinator_error = return_value;
+
+        return PROGRAM_STATE_ERROR;
+    }
+
+    while (getch() != 'q');
+
+    DestroySubwindow(&screen->subwindow_2);
+    StackDestroy(path_stack_1);
+    StackDestroy(path_stack_2);
+
+    return PROGRAM_STATE_MENU;
+}
+
+static akinator_return_e 
+ShowComparison(akinator_t             akinator,
+               visualisation_context* screen,
+               swag_t                 path_stack_1,
+               swag_t                 path_stack_2)
+{
+    ASSERT_AKINATOR(akinator);
+    ASSERT(screen != NULL);
+    ASSERT(screen->subwindow_2.window != NULL);
+    ASSERT(path_stack_1 != NULL);
+    ASSERT(path_stack_2 != NULL);
+    
+    size_t previous_path_node = 0;
+
+    size_t path_node_1 = 0;
+    size_t path_node_2 = 0;
+
+    if ((StackPop(path_stack_1, &path_node_1) != 0) 
+        || (StackPop(path_stack_2, &path_node_2) != 0))
+    {
+        return AKINATOR_RETURN_STACK_ERROR;
+    }
+
+    previous_path_node = path_node_1;
+
+    if ((StackPop(path_stack_1, &path_node_1) != 0) 
+        || (StackPop(path_stack_2, &path_node_2) != 0))
+    {
+        return AKINATOR_RETURN_STACK_ERROR;
+    }
+
+    node_s* nodes_array = akinator->object_tree->nodes_array;
+
+    while (path_node_1 == path_node_2)
+    {
+        AddTextToSubwindow(&screen->subwindow_2, 
+                           nodes_array[previous_path_node].node_value.string_source,
+                           nodes_array[previous_path_node].node_value.string_size);
+            
+        previous_path_node = path_node_1;
+
+        if ((StackPop(path_stack_1, &path_node_1) != 0) 
+            || (StackPop(path_stack_2, &path_node_2) != 0))
+        {
+            return AKINATOR_RETURN_STACK_ERROR;
+        }
+    }
+
+    return AKINATOR_RETURN_SUCCESS;
+}
