@@ -404,7 +404,7 @@ ShowObjectDefinition(akinator_t             akinator,
                        nodes_array[current_node].node_value.string_source,
                        nodes_array[current_node].node_value.string_size);
 
-    while (getch() != 'q');
+    while (getch() != 'q'); 
 
     DestroySubwindow(&screen->subwindow_1);
     DestroySubwindow(&screen->subwindow_2);

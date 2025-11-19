@@ -17,6 +17,14 @@ static recursion_return_e RecursiveParser(akinator_t akinator,
                                           size_t*    current_position, 
                                           size_t     root_position);
 
+static bool 
+IsTreeFree(akinator_t akinator)
+{
+    ASSERT(akinator != NULL);
+
+    return akinator->object_tree->nodes_array[0].left_index == NO_LINK;
+}
+
 akinator_return_e
 AkinatorInit(akinator_t*  akinator,
              const char*  file_name)
@@ -71,7 +79,7 @@ AkinatorInit(akinator_t*  akinator,
         return AKINATOR_RETURN_READ_ERROR;
     }
 
-    if ((*akinator)->object_tree->nodes_array[0].left_index == NO_LINK)
+    if (IsTreeFree(*akinator))
     {
         free((*akinator)->input_buffer);
         TreeDestroy((*akinator)->object_tree);

@@ -3,7 +3,8 @@
         "bitset": "cpp",
         "format": "cpp",
         "string": "cpp",
-        "cstdlib": "cpp"
+        "cstdlib": "cpp",
+        "cstdint": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

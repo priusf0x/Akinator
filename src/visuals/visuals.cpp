@@ -323,16 +323,17 @@ ShowMessage(visualisation_context* screen,
     wclear(question_window);
     box(question_window, 0, 0);
 
-    wattron(question_window, A_BOLD);
+    wattron(question_window, A_BOLD); // atrpritnw
     mvwprintw(question_window, 1, 1, "%s", character_ask);
     wattroff(question_window, A_BOLD);
 
     wattron(question_window, A_ITALIC);
     wmove(question_window, 2, 2);
-    for (size_t letter_num = 0; (letter_num < message_length) 
-         && (message[letter_num] != 0) ; letter_num++)
+    for (size_t letter_num = 0;
+         (letter_num < message_length) && (message[letter_num] != 0);
+         letter_num++)
     {
-        waddch(question_window, (unsigned char) message[letter_num]);
+        waddch(question_window, (unsigned) message[letter_num]);
         usleep((__useconds_t)random() % max_delay);
         wrefresh(question_window);
     }
@@ -382,8 +383,8 @@ DrawButtons(mode_menu_e current_mode)
 {
     int button_position_x = (int) (0.5 * getmaxx(stdscr));
     int guess_button_position_y = (int) (0.3 * getmaxy(stdscr));
-    int definition_button_position_y =  (int) (0.4 * getmaxy(stdscr) + 1);
-    int compare_button_position_y =  (int) (0.5 * getmaxy(stdscr) + 2);
+    int definition_button_position_y = (int) (0.4 * getmaxy(stdscr) + 1);
+    int compare_button_position_y = (int) (0.5 * getmaxy(stdscr) + 2);
 
     const char* guess_button_text = "Guess";
     const char* definition_button_text = "Define";
